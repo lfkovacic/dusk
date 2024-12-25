@@ -1,6 +1,6 @@
 ﻿
 using System.IO;
-using dusk.src.entities;
+using dusk.mejjiq.entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -21,29 +21,17 @@ public class Game1 : Game
         IsMouseVisible = true;
     }
 
-    private void SaveTriangleState()
-    {
-        var json = _triangle.ToJson();
-        File.WriteAllText("triangle.json", json);
-    }
 
     private void LoadTriangleState()
     {
-        if (File.Exists("triangle.json"))
-        {
-            var json = File.ReadAllText("triangle.json");
-            _triangle = Triangle.FromJson(GraphicsDevice, json);
-        }
-        else
-        {
+        
             // Create a default triangle if no saved data exists
             _triangle = new Triangle(
                 GraphicsDevice,
-                new Vector3(100, 200, 0), Color.Red,
-                new Vector3(300, 200, 0), Color.Green,
-                new Vector3(200, 100, 0), Color.Blue
+                new Node(0, new Vector3(100, 200, 0)),
+                new Node(1, new Vector3(300, 200, 0)),
+                new Node(2, new Vector3(200, 100, 0))
             );
-        }
     }
 
     protected override void Initialize()
@@ -68,10 +56,10 @@ public class Game1 : Game
     {
         var mouseState = Mouse.GetState();
 
-        if (mouseState.LeftButton == ButtonState.Pressed)
-        {
-            _triangle.UpdateVertex(2, new Vector3(mouseState.X, mouseState.Y, 0));
-        }
+        // if (mouseState.LeftButton == ButtonState.Pressed)
+        // {
+        //     _triangle.UpdateVertex(2, new Vector3(mouseState.X, mouseState.Y, 0));
+        // }
 
         base.Update(gameTime);
     }
@@ -87,8 +75,6 @@ public class Game1 : Game
 
     protected override void OnExiting(object sender, Microsoft.Xna.Framework.ExitingEventArgs args)
     {
-        // Save the triangle state when the game closes
-        SaveTriangleState();
         base.OnExiting(sender, args);
     }
 }

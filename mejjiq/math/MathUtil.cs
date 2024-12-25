@@ -1,4 +1,4 @@
-namespace dusk.src.math;
+namespace dusk.mejjiq.math;
 public static class MathUtils {
     
 
