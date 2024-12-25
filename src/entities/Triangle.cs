@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace dusk.entities;
+namespace dusk.src.entities;
 public class Triangle
 {
     public class VertexData

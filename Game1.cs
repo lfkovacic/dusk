@@ -1,6 +1,6 @@
 ﻿
 using System.IO;
-using dusk.entities;
+using dusk.src.entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
