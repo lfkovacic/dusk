@@ -41,6 +41,18 @@ public class Game1 : Game
     protected override void Initialize()
     {
         base.Initialize();
+        // Load graphical settings from the config file
+        int resolutionWidth = _configManager.GetIntValue("Graphics", "ResolutionWidth");
+        int resolutionHeight = _configManager.GetIntValue("Graphics", "ResolutionHeight");
+        bool fullscreen = _configManager.GetBoolValue("Graphics", "Fullscreen");
+
+        // Apply resolution and fullscreen from config
+        _graphics.PreferredBackBufferWidth = resolutionWidth;
+        _graphics.PreferredBackBufferHeight = resolutionHeight;
+        _graphics.IsFullScreen = fullscreen;
+
+        _graphics.ApplyChanges();
+
 
         // Set up the BasicEffect
         _basicEffect = new BasicEffect(GraphicsDevice)
