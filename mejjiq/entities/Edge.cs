@@ -34,6 +34,8 @@ public class Edge : IEdge
     // Apply the tension with a logarithmic scaling
     public void ApplyTension(Node activeNode)
     {
+
+        //TODO: better
         if (Nodes[1] == activeNode) return;
         // Get the positions of both nodes
         var position0 = Nodes[0].Position;
@@ -49,7 +51,7 @@ public class Edge : IEdge
         if (distance < MinLength)
         {
             // Calculate the tension factor (logarithmic scale)
-            float tensionFactor = (float)Math.Log(MinLength / distance);
+            float tensionFactor = (float)Math.Log(MinLength / distance) / 10f;
 
             // Apply tension to move Node 1 away from Node 0, restoring equilibrium
             var movement = direction * tensionFactor;

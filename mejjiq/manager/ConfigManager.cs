@@ -4,28 +4,31 @@ using System.IO;
 
 namespace dusk.mejjiq.manager
 {
-    public class ConfigManager
-    {
-        private Dictionary<string, Dictionary<string, string>> _configData;
 
-        public ConfigManager(string filePath)
+
+    public static class ConfigManager
+    {
+        private static string _filePath = "./config.ini";
+        private static Dictionary<string, Dictionary<string, string>> _configData;
+
+        // Static constructor to load config when the class is accessed
+        static ConfigManager()
         {
             _configData = new Dictionary<string, Dictionary<string, string>>();
-            LoadConfig(filePath);
         }
 
         // Load the config file and parse it
-        private void LoadConfig(string filePath)
+        public static void LoadConfig()
         {
-            if (!File.Exists(filePath))
+            if (!File.Exists(_filePath))
             {
                 // If the config file doesn't exist, create a new one with default values
-                CreateDefaultConfig(filePath);
-                Console.WriteLine($"Config file not found. A new one has been created at {filePath}");
+                CreateDefaultConfig();
+                Console.WriteLine($"Config file not found. A new one has been created at {_filePath}");
             }
 
             string currentSection = null;
-            var lines = File.ReadAllLines(filePath);
+            var lines = File.ReadAllLines(_filePath);
 
             foreach (var line in lines)
             {
@@ -43,7 +46,7 @@ namespace dusk.mejjiq.manager
                 else if (currentSection != null && trimmedLine.Contains('='))
                 {
                     // Key-value pair (e.g., ResolutionWidth=1920)
-                    var parts = trimmedLine.Split(['='], 2);
+                    var parts = trimmedLine.Split('=', 2);
                     if (parts.Length == 2)
                     {
                         var key = parts[0].Trim();
@@ -55,7 +58,7 @@ namespace dusk.mejjiq.manager
         }
 
         // Method to create a default config file
-        private void CreateDefaultConfig(string filePath)
+        private static void CreateDefaultConfig()
         {
             var defaultConfig = new Dictionary<string, Dictionary<string, string>>
             {
@@ -68,13 +71,13 @@ namespace dusk.mejjiq.manager
                 },
                 { "Misc", new Dictionary<string, string>
                     {
-                        //TODO: empty for now
+                        {"DebugMode", "false"}
                     }
                 }
             };
 
             // Write the default config to the file
-            using (var writer = new StreamWriter(filePath))
+            using (var writer = new StreamWriter(_filePath))
             {
                 foreach (var section in defaultConfig)
                 {
@@ -89,7 +92,7 @@ namespace dusk.mejjiq.manager
         }
 
         // Get value for a given section and key
-        public string GetValue(string section, string key)
+        public static string GetValue(string section, string key)
         {
             if (_configData.ContainsKey(section) && _configData[section].ContainsKey(key))
             {
@@ -99,12 +102,12 @@ namespace dusk.mejjiq.manager
         }
 
         // Optionally, you can add a method to get integer or boolean values directly
-        public int GetIntValue(string section, string key)
+        public static int GetIntValue(string section, string key)
         {
             return int.Parse(GetValue(section, key));
         }
 
-        public bool GetBoolValue(string section, string key)
+        public static bool GetBoolValue(string section, string key)
         {
             return bool.Parse(GetValue(section, key));
         }

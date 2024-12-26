@@ -1,6 +1,5 @@
 ﻿
 using System;
-using System.IO;
 using dusk.mejjiq.entities;
 using dusk.mejjiq.manager;
 using Microsoft.Xna.Framework;
@@ -12,32 +11,14 @@ namespace dusk;
 public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
-
-    private ConfigManager _configManager;
     private BasicEffect _basicEffect;
-    private Triangle _triangle;
-
     private GameEntity _gameEntity;
 
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
-        _configManager = new ConfigManager("./config.ini");
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
-    }
-
-
-    private void LoadTriangleState()
-    {
-
-        _triangle = new Triangle(
-            GraphicsDevice,
-            new Node(0, new Vector3(100, 200, 0)),
-            new Node(1, new Vector3(300, 200, 0)),
-            new Node(2, new Vector3(200, 100, 0))
-        );
-        _triangle.GetEdge(0).MinLength = 50f;
     }
 
     private void LoadGameEntity()
@@ -61,9 +42,11 @@ public class Game1 : Game
     {
         base.Initialize();
         // Load graphical settings from the config file
-        int resolutionWidth = _configManager.GetIntValue("Graphics", "ResolutionWidth");
-        int resolutionHeight = _configManager.GetIntValue("Graphics", "ResolutionHeight");
-        bool fullscreen = _configManager.GetBoolValue("Graphics", "Fullscreen");
+
+        ConfigManager.LoadConfig();
+        int resolutionWidth = ConfigManager.GetIntValue("Graphics", "ResolutionWidth");
+        int resolutionHeight = ConfigManager.GetIntValue("Graphics", "ResolutionHeight");
+        bool fullscreen = ConfigManager.GetBoolValue("Graphics", "Fullscreen");
 
         // Apply resolution and fullscreen from config
         _graphics.PreferredBackBufferWidth = resolutionWidth;
@@ -132,7 +115,7 @@ public class Game1 : Game
         base.Draw(gameTime);
     }
 
-    protected override void OnExiting(object sender, Microsoft.Xna.Framework.ExitingEventArgs args)
+    protected override void OnExiting(object sender, ExitingEventArgs args)
     {
         base.OnExiting(sender, args);
     }
