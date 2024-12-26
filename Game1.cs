@@ -17,6 +17,8 @@ public class Game1 : Game
     private BasicEffect _basicEffect;
     private Triangle _triangle;
 
+    private GameEntity _gameEntity;
+
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
@@ -36,6 +38,23 @@ public class Game1 : Game
             new Node(2, new Vector3(200, 100, 0))
         );
         _triangle.GetEdge(0).MinLength = 50f;
+    }
+
+    private void LoadGameEntity()
+    {
+        // Create the first triangle (Triangle 1)
+        var node1 = new Node(0, new Vector3(400, 400, 0));
+        var node2 = new Node(1, new Vector3(500, 400, 0));
+        var node3 = new Node(2, new Vector3(600, 200, 0));
+
+        var triangle1 = new Triangle(GraphicsDevice, node1, node2, node3);
+
+        // Create the second triangle (Triangle 2), sharing node2 and node3
+        var node4 = new Node(3, new Vector3(700, 800, 0));  // New node for Triangle 2
+        var triangle2 = new Triangle(GraphicsDevice, node2, node3, node4);
+
+        // Create a GameEntity with these two triangles
+        _gameEntity = new GameEntity([triangle1, triangle2]);
     }
 
     protected override void Initialize()
@@ -65,7 +84,7 @@ public class Game1 : Game
         };
 
         // Load the triangle state
-        LoadTriangleState();
+        LoadGameEntity();
     }
     Node activeNode = null;
 
@@ -85,32 +104,23 @@ public class Game1 : Game
         // Handle mouse down event (detect when the mouse is pressed down)
         if (mouseState.LeftButton == ButtonState.Pressed)
         {
-            foreach (Node node in _triangle._nodes)
-            {
-                node.OnMouseDown(mousePosition);
-                if (node.IsDragging) activeNode = node;
-            }
+            _gameEntity.OnMouseDown(mousePosition, ref activeNode);
         }
 
         // Handle mouse up event (trigger only when the button is released)
         if (mouseState.LeftButton == ButtonState.Released && activeNode != null)
         {
-            // Console.WriteLine("Node is supposed to do the OnMouseUp thingy: " + activeNode.Serialize());
-            activeNode.OnMouseUp();  // Trigger OnMouseUp when the mouse is released
-            activeNode.IsDragging = false;
-            activeNode = null;
+            _gameEntity.OnMouseUp(ref activeNode);
         }
 
         // Handle mouse move event (if dragging)
         if (mouseState.LeftButton == ButtonState.Pressed && activeNode != null)
         {
             activeNode.OnMouseMove(mousePosition);
+            Console.WriteLine(activeNode.Serialize());
 
         }
-        foreach (Edge edge in _triangle.GetAllEdges())
-        {
-            edge.ApplyTension(activeNode);
-        }
+        _gameEntity.Update(activeNode);
 
     }
 
@@ -118,8 +128,7 @@ public class Game1 : Game
     {
         GraphicsDevice.Clear(Color.Black);
 
-        _triangle.Draw(_basicEffect);
-
+        _gameEntity.Draw(_basicEffect);
         base.Draw(gameTime);
     }
 
