@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.IO;
 using dusk.mejjiq.entities;
 using Microsoft.Xna.Framework;
@@ -24,14 +25,14 @@ public class Game1 : Game
 
     private void LoadTriangleState()
     {
-        
-            // Create a default triangle if no saved data exists
-            _triangle = new Triangle(
-                GraphicsDevice,
-                new Node(0, new Vector3(100, 200, 0)),
-                new Node(1, new Vector3(300, 200, 0)),
-                new Node(2, new Vector3(200, 100, 0))
-            );
+
+        // Create a default triangle if no saved data exists
+        _triangle = new Triangle(
+            GraphicsDevice,
+            new Node(0, new Vector3(100, 200, 0)),
+            new Node(1, new Vector3(300, 200, 0)),
+            new Node(2, new Vector3(200, 100, 0))
+        );
     }
 
     protected override void Initialize()
@@ -51,22 +52,51 @@ public class Game1 : Game
         // Load the triangle state
         LoadTriangleState();
     }
+    Node activeNode = null;
 
     protected override void Update(GameTime gameTime)
     {
-        var mouseState = Mouse.GetState();
-
-        // if (mouseState.LeftButton == ButtonState.Pressed)
-        // {
-        //     _triangle.UpdateVertex(2, new Vector3(mouseState.X, mouseState.Y, 0));
-        // }
-
         base.Update(gameTime);
+
+
+
+        // Get the current mouse state and position
+        var mouseState = Mouse.GetState();
+        var mousePosition = new Vector2(mouseState.X, mouseState.Y);
+
+        // Debug print the mouse state for each update
+        Console.WriteLine($"Current Mouse State: {mouseState.LeftButton}");
+
+        // Handle mouse down event (detect when the mouse is pressed down)
+        if (mouseState.LeftButton == ButtonState.Pressed)
+        {
+            foreach (Node node in _triangle._nodes)
+            {
+                node.OnMouseDown(mousePosition);
+                if (node.IsDragging) activeNode = node;
+            }
+        }
+
+        // Handle mouse up event (trigger only when the button is released)
+        if (mouseState.LeftButton == ButtonState.Released && activeNode != null)
+        {
+            Console.WriteLine("Node is supposed to do the OnMouseUp thingy: " + activeNode.Serialize());
+            activeNode.OnMouseUp();  // Trigger OnMouseUp when the mouse is released
+            activeNode.IsDragging = false;
+            activeNode = null;
+        }
+
+        // Handle mouse move event (if dragging)
+        if (mouseState.LeftButton == ButtonState.Pressed && activeNode != null)
+        {
+            activeNode.OnMouseMove(mousePosition);
+        }
+
     }
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+        GraphicsDevice.Clear(Color.Black);
 
         _triangle.Draw(_basicEffect);
 

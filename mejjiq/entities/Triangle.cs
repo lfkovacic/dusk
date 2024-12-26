@@ -1,10 +1,7 @@
-using System;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Text.Json.Nodes;
 using dusk.mejjiq.entities.@interface;
-using dusk.mejjiq.interfaces;
 using dusk.mejjiq.util;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -13,7 +10,7 @@ namespace dusk.mejjiq.entities;
 
 public class Triangle
 {
-    private readonly INode[] _nodes;
+    public INode[] _nodes;
     private readonly Color[] _colors;
 
     private GraphicsDevice _graphicsDevice;
@@ -50,6 +47,10 @@ public class Triangle
         {
             pass.Apply();
             _graphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, 3);
+            foreach (Node node in _nodes)
+            {
+                node.Draw(_graphicsDevice, effect);
+            }
         }
     }
 
