@@ -33,6 +33,7 @@ public class Game1 : Game
             new Node(1, new Vector3(300, 200, 0)),
             new Node(2, new Vector3(200, 100, 0))
         );
+        _triangle.GetEdge(0).MinLength = 50f;
     }
 
     protected override void Initialize()
@@ -80,7 +81,7 @@ public class Game1 : Game
         // Handle mouse up event (trigger only when the button is released)
         if (mouseState.LeftButton == ButtonState.Released && activeNode != null)
         {
-            Console.WriteLine("Node is supposed to do the OnMouseUp thingy: " + activeNode.Serialize());
+            // Console.WriteLine("Node is supposed to do the OnMouseUp thingy: " + activeNode.Serialize());
             activeNode.OnMouseUp();  // Trigger OnMouseUp when the mouse is released
             activeNode.IsDragging = false;
             activeNode = null;
@@ -90,6 +91,11 @@ public class Game1 : Game
         if (mouseState.LeftButton == ButtonState.Pressed && activeNode != null)
         {
             activeNode.OnMouseMove(mousePosition);
+
+        }
+        foreach (Edge edge in _triangle.GetAllEdges())
+        {
+            edge.ApplyTension(activeNode);
         }
 
     }

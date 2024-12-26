@@ -7,6 +7,8 @@ namespace dusk.mejjiq.entities.@interface
     public interface INode
     {
         Vector3 Position { get; set; }
+        int ID { get; }
+
         void AddConnection(INode node);
         void RemoveConnection(INode node);
 
