@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using dusk.mejjiq.entities;
+using dusk.mejjiq.manager;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -11,13 +12,15 @@ namespace dusk;
 public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
+
+    private ConfigManager _configManager;
     private BasicEffect _basicEffect;
     private Triangle _triangle;
-    private VertexPositionColor[] _triangleVertices;
 
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
+        _configManager = new ConfigManager("./config.ini");
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
     }
@@ -26,7 +29,6 @@ public class Game1 : Game
     private void LoadTriangleState()
     {
 
-        // Create a default triangle if no saved data exists
         _triangle = new Triangle(
             GraphicsDevice,
             new Node(0, new Vector3(100, 200, 0)),
