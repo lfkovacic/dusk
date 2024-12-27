@@ -4,9 +4,9 @@ using dusk.mejjiq.entities;
 using Microsoft.Xna.Framework;
 
 namespace dusk.mejjiq.math;
-public static class MathUtils 
+public static class MathUtils
 {
-     public static List<Vector3> GenerateCircleEdges(Vector3 center, float radius, int resolution)
+    public static List<Vector3> GenerateCircleEdges(Vector3 center, float radius, int resolution)
     {
         List<Vector3> points = new List<Vector3>();
 
@@ -26,12 +26,13 @@ public static class MathUtils
         return points;
     }
 
-    public static void ApplyTension(Edge edge, Node activeNode){
-        
+    public static void ApplyTension(Edge edge, Node activeNode)
+    {
+
         var node0 = edge.GetNodes()[0];
         var node1 = edge.GetNodes()[1];
 
-        // if (node0 == activeNode) return;
+        // if (node1 == activeNode) return;
 
         var position0 = node0.Position;
         var position1 = node1.Position;
@@ -39,10 +40,10 @@ public static class MathUtils
         var direction = position1 - position0;
 
         float distance = direction.Length();
-        float distanceRatio = edge.MinLength/distance;
+        float distanceRatio = edge.MinLength / distance;
 
         float distanceLog = (float)Math.Log(distanceRatio);
-
-        ((Node)node1).MoveByVector(direction*distanceLog/edge.TensionCoefficient);
+        ((Node)node0).MoveByVector(-direction * distanceLog / edge.TensionCoefficient);
+        ((Node)node1).MoveByVector(direction * distanceLog / edge.TensionCoefficient);
     }
 }
