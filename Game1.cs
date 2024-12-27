@@ -1,5 +1,7 @@
 ﻿
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using dusk.mejjiq.entities;
 using dusk.mejjiq.manager;
 using dusk.mejjiq.ui.elements;
@@ -12,9 +14,11 @@ namespace dusk;
 public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
+    private EventManager _event;
     private BasicEffect _basicEffect;
     private Grid _grid;
-    private GameEntity _gameEntity;
+    private List<GameEntity> _entities;
+    private Node _activeNode = null;
 
     private SpriteFont _defaultFont;
     private SpriteBatch _spriteBatch;
@@ -52,23 +56,61 @@ public class Game1 : Game
         var edge3 = new Edge(node1, node3, 50f);
         var edge4 = new Edge(node3, node2, 50f);
 
-        // Create a GameEntity with these two triangles
-        _gameEntity = new GameEntity(
+        // Create a GameEntity with these triangles
+        var gameEntity = new GameEntity(
             [node0, node1, node2, node3],
             [edge0, edge1, edge2, edge3, edge4]
         );
+
+        // Add to the list of entities
+        _entities.Add(gameEntity);
+    }
+
+    private void OnMousePressed(Vector2 position){
+        foreach (var entity in _entities){
+            entity.OnMouseDown(position, ref _activeNode);
+        }
+    }
+
+    private void OnMouseMoved(Vector2 position){
+        if (_activeNode == null) return;
+        _activeNode.OnMouseMove(position);
+    }
+
+    private void OnMouseReleased(Vector2 position){
+        foreach (var entity in _entities) {
+            entity.OnMouseUp(ref _activeNode);            
+        }
+    }
+
+    private void OnKeyPressed(Keys k){
+
+    }
+    private void OnKeyReleased(Keys k){
+
     }
 
     protected override void Initialize()
     {
         base.Initialize();
         // Load graphical settings from the config file
+        _entities = [];
 
 
         ConfigManager.LoadConfig();
+        _event = new EventManager();
+        // Subscribe to the mouse events
+        _event.MouseMoved += OnMouseMoved;
+        _event.MousePressed += OnMousePressed;
+        _event.MouseReleased += OnMouseReleased;
+
+        // Subscribe to the keyboard events
+        _event.KeyPressed += OnKeyPressed;
+        _event.KeyReleased += OnKeyReleased;
         LoadContent();
         _button1 = new Button(
             new Rectangle(20, 20, 200, 60),
+            _event,
             new Action(() => Console.WriteLine("Button pressed!")),
             "test",
             _defaultFont
@@ -101,43 +143,17 @@ public class Game1 : Game
         // Load the triangle state
         LoadGameEntity();
     }
-    Node activeNode = null;
+    
 
     protected override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
+        _event.Update(gameTime);
 
-
-
-        // Get the current mouse state and position
-        var mouseState = Mouse.GetState();
-        var mousePosition = new Vector2(mouseState.X, mouseState.Y);
-
-        // Debug print the mouse state for each update
-        Console.WriteLine($"Current Mouse State: {mouseState.LeftButton}");
-        _button1.Update(mouseState);
-
-
-        // Handle mouse down event (detect when the mouse is pressed down)
-        if (mouseState.LeftButton == ButtonState.Pressed)
+        foreach (GameEntity entity in _entities)
         {
-            _gameEntity.OnMouseDown(mousePosition, ref activeNode);
+            entity.Update(_activeNode);
         }
-
-        // Handle mouse up event (trigger only when the button is released)
-        if (mouseState.LeftButton == ButtonState.Released && activeNode != null)
-        {
-            _gameEntity.OnMouseUp(ref activeNode);
-        }
-
-        // Handle mouse move event (if dragging)
-        if (mouseState.LeftButton == ButtonState.Pressed && activeNode != null)
-        {
-            activeNode.OnMouseMove(mousePosition);
-            Console.WriteLine(activeNode.Serialize());
-
-        }
-        _gameEntity.Update(activeNode);
 
     }
 
@@ -145,10 +161,13 @@ public class Game1 : Game
     {
         GraphicsDevice.Clear(Color.Black);
 
-        
+
         _grid.Draw(GraphicsDevice, _basicEffect);
-        
-        _gameEntity.Draw(GraphicsDevice, _basicEffect);
+
+        foreach (GameEntity entity in _entities)
+        {
+            entity.Draw(GraphicsDevice, _basicEffect);
+        }
         _spriteBatch.Begin();
         _button1.Draw(_spriteBatch, Color.Green, Color.DarkGreen, Color.Black);
         _spriteBatch.End();

@@ -1,4 +1,5 @@
 using System;
+using dusk.mejjiq.manager;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -8,38 +9,55 @@ namespace dusk.mejjiq.ui.elements
     public class Button
     {
         private Rectangle _bounds;
-        private Action _onClick;
         private bool _isHovering;
         private bool _wasPressed;
 
         private string _text;
         private SpriteFont _font;
+        private Action _onClick;  // Store the Action
 
-        public Button(Rectangle bounds, Action onClick, string text = "", SpriteFont font = null)
+        // Store a reference to the EventManager to subscribe to mouse events
+        private EventManager _eventManager;
+
+        public Button(Rectangle bounds, EventManager eventManager, Action onClick, string text = "", SpriteFont font = null)
         {
             _bounds = bounds;
-            _onClick = onClick;
+            _eventManager = eventManager;
+            _onClick = onClick;  // Pass the Action to the Button
             _text = text;
             _font = font;
+
+            // Subscribe to mouse events in the EventManager
+            _eventManager.MousePressed += OnMousePressed;
+            _eventManager.MouseReleased += OnMouseReleased;
+        }
+
+        // Called when the mouse is pressed
+        private void OnMousePressed(Vector2 position)
+        {
+            var mousePosition = new Point((int)position.X, (int)position.Y);
+            if (_bounds.Contains(mousePosition) && !_wasPressed)
+            {
+                // Trigger the button click event
+                _onClick?.Invoke();  // Invoke the Action
+                _wasPressed = true;
+            }
+        }
+
+        // Called when the mouse is released
+        private void OnMouseReleased(Vector2 position)
+        {
+            var mousePosition = new Point((int)position.X, (int)position.Y);
+            if (_bounds.Contains(mousePosition))
+            {
+                _wasPressed = false;
+            }
         }
 
         public void Update(MouseState mouseState)
         {
             var mousePosition = new Point(mouseState.X, mouseState.Y);
             _isHovering = _bounds.Contains(mousePosition);
-
-            if (_isHovering && mouseState.LeftButton == ButtonState.Pressed)
-            {
-                if (!_wasPressed)
-                {
-                    _onClick?.Invoke();
-                }
-                _wasPressed = true;
-            }
-            else if (mouseState.LeftButton == ButtonState.Released)
-            {
-                _wasPressed = false;
-            }
         }
 
         public void Draw(SpriteBatch spriteBatch, Color buttonColor, Color hoverColor, Color textColor)
@@ -48,8 +66,8 @@ namespace dusk.mejjiq.ui.elements
 
             // Draw the rectangle for the button
             spriteBatch.Draw(
-                CreateDummyTexture(spriteBatch.GraphicsDevice), 
-                _bounds, 
+                CreateDummyTexture(spriteBatch.GraphicsDevice),
+                _bounds,
                 color
             );
 

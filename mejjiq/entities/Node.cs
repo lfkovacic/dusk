@@ -87,7 +87,6 @@ public class Node : INode, ISaveable
     // Method to handle mouse up events (stop dragging)
     public void OnMouseUp()
     {
-        Console.WriteLine("Mouse released.");
         IsDragging = false;
     }
 
