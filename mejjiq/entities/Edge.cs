@@ -39,7 +39,7 @@ public class Edge : IEdge
         var node0 = (Node)Nodes[0];
         var node1 = (Node)Nodes[1];
 
-        var frictionCoefficient = 0.95f;
+        var frictionCoefficient = 0.995f;
 
         var tensionVector = MathUtils.GetTensionVector(this, activeNode);
         node0.UpdateWithVector(tensionVector);
@@ -49,12 +49,12 @@ public class Edge : IEdge
         node1.ApplyFriction(frictionCoefficient);
     }
 
-    
+
 
 
     public void Draw(GraphicsDevice graphicsDevice, BasicEffect effect)
     {
-        var green = Color.Green;
+        var green = new Color(0x00ff00);
         var pos0 = new VertexPositionColor(Nodes[0].Position, green);
         var pos1 = new VertexPositionColor(Nodes[1].Position, green);
         var vertices = new[]

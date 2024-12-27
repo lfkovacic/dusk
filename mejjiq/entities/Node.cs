@@ -164,7 +164,7 @@ public class Node : INode, ISaveable
     {
         var radius = NodeRadius;
         var CircleResolution = 50;
-        var color = Color.Green;
+        var color = new Color(0x00ff00);
 
         // Generate the circle's vertices (edges)
         List<Vector3> circleEdges = MathUtils.GenerateCircleEdges(new Vector3(X, Y, Z), radius, CircleResolution);

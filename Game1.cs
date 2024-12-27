@@ -2,6 +2,7 @@
 using System;
 using dusk.mejjiq.entities;
 using dusk.mejjiq.manager;
+using dusk.mejjiq.ui.elements;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -12,13 +13,29 @@ public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
     private BasicEffect _basicEffect;
+    private Grid _grid;
     private GameEntity _gameEntity;
+
+    private SpriteFont _defaultFont;
+    private SpriteBatch _spriteBatch;
+
+    private Button _button1;
 
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
+    }
+
+    protected override void LoadContent()
+    {
+        _defaultFont = Content.Load<SpriteFont>("Arial");
+    }
+
+    private void LoadGrid()
+    {
+        _grid = new Grid();
     }
 
     private void LoadGameEntity()
@@ -47,7 +64,15 @@ public class Game1 : Game
         base.Initialize();
         // Load graphical settings from the config file
 
+
         ConfigManager.LoadConfig();
+        LoadContent();
+        _button1 = new Button(
+            new Rectangle(20, 20, 200, 60),
+            new Action(() => Console.WriteLine("Button pressed!")),
+            "test",
+            _defaultFont
+            );
         int resolutionWidth = ConfigManager.GetIntValue("Graphics", "ResolutionWidth");
         int resolutionHeight = ConfigManager.GetIntValue("Graphics", "ResolutionHeight");
         bool fullscreen = ConfigManager.GetBoolValue("Graphics", "Fullscreen");
@@ -58,6 +83,7 @@ public class Game1 : Game
         _graphics.IsFullScreen = fullscreen;
 
         _graphics.ApplyChanges();
+        _spriteBatch = new SpriteBatch(GraphicsDevice);
 
 
         // Set up the BasicEffect
@@ -69,6 +95,8 @@ public class Game1 : Game
             World = Matrix.Identity,
             View = Matrix.Identity
         };
+
+        LoadGrid();
 
         // Load the triangle state
         LoadGameEntity();
@@ -87,6 +115,8 @@ public class Game1 : Game
 
         // Debug print the mouse state for each update
         Console.WriteLine($"Current Mouse State: {mouseState.LeftButton}");
+        _button1.Update(mouseState);
+
 
         // Handle mouse down event (detect when the mouse is pressed down)
         if (mouseState.LeftButton == ButtonState.Pressed)
@@ -115,7 +145,13 @@ public class Game1 : Game
     {
         GraphicsDevice.Clear(Color.Black);
 
+        
+        _grid.Draw(GraphicsDevice, _basicEffect);
+        
         _gameEntity.Draw(GraphicsDevice, _basicEffect);
+        _spriteBatch.Begin();
+        _button1.Draw(_spriteBatch, Color.Green, Color.DarkGreen, Color.Black);
+        _spriteBatch.End();
         base.Draw(gameTime);
     }
 
