@@ -14,7 +14,7 @@ public class Edge : IEdge
 {
     public INode[] Nodes { get; set; } = new INode[2];
     public float MinLength { get; set; } = 200f; // Minimum length where tension starts to approach zero
-    public float TensionCoefficient = 20f; //The higher this valiue, the less springy
+    public float TensionCoefficient = 30f; //The higher this valiue, the less springy
     public Edge(INode node0, INode node1)
     {
         Nodes[0] = node0;
@@ -39,7 +39,7 @@ public class Edge : IEdge
         var node0 = (Node)Nodes[0];
         var node1 = (Node)Nodes[1];
 
-        var frictionCoefficient = 0.995f;
+        var frictionCoefficient = 0.992f;
 
         var tensionVector = MathUtils.GetTensionVector(this, activeNode);
         node0.UpdateWithVector(tensionVector);

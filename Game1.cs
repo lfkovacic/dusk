@@ -13,11 +13,11 @@ namespace dusk;
 
 public class Game1 : Game
 {
-    private GraphicsDeviceManager _graphics;
-    private EventManager _event;
+    private GraphicsDeviceManager _graphicsManager;
+    private EventManager _eventManager;
+    private EntityManager _entityManager;
     private BasicEffect _basicEffect;
     private Grid _grid;
-    private List<GameEntity> _entities;
     private Node _activeNode = null;
 
     private SpriteFont _defaultFont;
@@ -27,7 +27,7 @@ public class Game1 : Game
 
     public Game1()
     {
-        _graphics = new GraphicsDeviceManager(this);
+        _graphicsManager = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
     }
@@ -42,7 +42,7 @@ public class Game1 : Game
         _grid = new Grid();
     }
 
-    private void LoadGameEntity()
+    private void LoadGameEntities()
     {
         // Create the first triangle (Triangle 1)
         var node0 = new Node(0, new Vector3(400, 400, 0));
@@ -63,11 +63,12 @@ public class Game1 : Game
         );
 
         // Add to the list of entities
-        _entities.Add(gameEntity);
+        _entityManager = new EntityManager();
+        _entityManager.AddEntity(gameEntity);
     }
 
     private void OnMousePressed(Vector2 position){
-        foreach (var entity in _entities){
+        foreach (var entity in _entityManager.GetAllEntities()){
             entity.OnMouseDown(position, ref _activeNode);
         }
     }
@@ -78,7 +79,7 @@ public class Game1 : Game
     }
 
     private void OnMouseReleased(Vector2 position){
-        foreach (var entity in _entities) {
+        foreach (var entity in _entityManager.GetAllEntities()) {
             entity.OnMouseUp(ref _activeNode);            
         }
     }
@@ -93,24 +94,25 @@ public class Game1 : Game
     protected override void Initialize()
     {
         base.Initialize();
+
         // Load graphical settings from the config file
-        _entities = [];
-
-
         ConfigManager.LoadConfig();
-        _event = new EventManager();
+
+        _eventManager = new EventManager();
         // Subscribe to the mouse events
-        _event.MouseMoved += OnMouseMoved;
-        _event.MousePressed += OnMousePressed;
-        _event.MouseReleased += OnMouseReleased;
+        _eventManager.MouseMoved += OnMouseMoved;
+        _eventManager.MousePressed += OnMousePressed;
+        _eventManager.MouseReleased += OnMouseReleased;
 
         // Subscribe to the keyboard events
-        _event.KeyPressed += OnKeyPressed;
-        _event.KeyReleased += OnKeyReleased;
+        _eventManager.KeyPressed += OnKeyPressed;
+        _eventManager.KeyReleased += OnKeyReleased;
+
         LoadContent();
+
         _button1 = new Button(
             new Rectangle(20, 20, 200, 60),
-            _event,
+            _eventManager,
             new Action(() => Console.WriteLine("Button pressed!")),
             "test",
             _defaultFont
@@ -120,11 +122,11 @@ public class Game1 : Game
         bool fullscreen = ConfigManager.GetBoolValue("Graphics", "Fullscreen");
 
         // Apply resolution and fullscreen from config
-        _graphics.PreferredBackBufferWidth = resolutionWidth;
-        _graphics.PreferredBackBufferHeight = resolutionHeight;
-        _graphics.IsFullScreen = fullscreen;
+        _graphicsManager.PreferredBackBufferWidth = resolutionWidth;
+        _graphicsManager.PreferredBackBufferHeight = resolutionHeight;
+        _graphicsManager.IsFullScreen = fullscreen;
 
-        _graphics.ApplyChanges();
+        _graphicsManager.ApplyChanges();
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
 
@@ -140,19 +142,21 @@ public class Game1 : Game
 
         LoadGrid();
 
+        
+
         // Load the triangle state
-        LoadGameEntity();
+        LoadGameEntities();
     }
     
 
     protected override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
-        _event.Update(gameTime);
+        _eventManager.Update(gameTime);
 
-        foreach (GameEntity entity in _entities)
+        foreach (GameEntity entity in _entityManager.GetAllEntities())
         {
-            entity.Update(_activeNode);
+            entity.Update(_activeNode, gameTime);
         }
 
     }
@@ -164,10 +168,7 @@ public class Game1 : Game
 
         _grid.Draw(GraphicsDevice, _basicEffect);
 
-        foreach (GameEntity entity in _entities)
-        {
-            entity.Draw(GraphicsDevice, _basicEffect);
-        }
+        _entityManager.Draw(GraphicsDevice, _basicEffect);
         _spriteBatch.Begin();
         _button1.Draw(_spriteBatch, Color.Green, Color.DarkGreen, Color.Black);
         _spriteBatch.End();

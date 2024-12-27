@@ -26,26 +26,32 @@ public static class MathUtils
         return points;
     }
 
+    private static Vector3 CalculateTension(Vector3 position0, Vector3 position1, float minDistance, float tensionCoefficient){
+        var direction = position1 - position0;
+
+        float distance = direction.Length();
+        float distanceRatio = minDistance/ distance;
+
+        float distanceLog = (float)Math.Log(distanceRatio);
+
+        var tensionVector = -direction * distanceLog / tensionCoefficient;
+        return tensionVector;
+    }
+
     public static Vector3 GetTensionVector(Edge edge, Node activeNode)
     {
 
         var node0 = edge.GetNodes()[0];
         var node1 = edge.GetNodes()[1];
 
-        // if (node1 == activeNode) return;
-
         var position0 = node0.Position;
         var position1 = node1.Position;
 
-        var direction = position1 - position0;
+        return CalculateTension(position0,position1, edge.MinLength, edge.TensionCoefficient);
+    }
 
-        float distance = direction.Length();
-        float distanceRatio = edge.MinLength / distance;
-
-        float distanceLog = (float)Math.Log(distanceRatio);
-
-        var tensionVector = -direction * distanceLog / edge.TensionCoefficient;
-        return tensionVector;
+    public static Vector3 GetTensionVector(Vector3 position0, Vector3 position1, float minDistance, float tensionCoefficient){
+        return CalculateTension(position0, position1, minDistance, tensionCoefficient);
     }
 
 }

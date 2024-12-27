@@ -95,8 +95,8 @@ public class Node : INode, ISaveable
     {
         if (IsDragging)
         {
-            X = mousePosition.X;
-            Y = mousePosition.Y;
+            UpdateWithVector(MathUtils.GetTensionVector(Position, new Vector3(mousePosition, 0), 20, 50f));
+            ApplyFriction(0.8f);
         }
     }
 
@@ -149,8 +149,8 @@ public class Node : INode, ISaveable
 
     public void Update()
     {
-        if (CurrentVelocity == Vector3.Zero) return;
-        if (CurrentVelocity.Length() < _vectorUpdateThreshold) CurrentVelocity = Vector3.Zero;
+        if (CurrentVelocity == Vector3.Zero) return; 
+        if (CurrentVelocity.Length() < _vectorUpdateThreshold) CurrentVelocity = Vector3.Zero; //Don't bother calculating velocity below a certain theshold
         Position += CurrentVelocity;
     }
 

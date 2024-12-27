@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Nodes;
 using dusk.mejjiq.entities.@interface;
 using Microsoft.Xna.Framework;
@@ -7,21 +8,15 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace dusk.mejjiq.entities;
 
-public class GameEntity : IGameEntity
+public class GameEntity(List<INode> nodes, List<IEdge> edges) : IGameEntity
 {
 
-    private INode[] _nodes { get; set; }
-    private IEdge[] _edges { get; set; }
+    public List<INode> Nodes { get; set; } = nodes;
+    public List<IEdge> Edges { get; set; } = edges;
 
     public void Draw(GraphicsDevice graphicsDevice, BasicEffect effect)
     {
-        foreach (Edge edge in _edges) edge.Draw(graphicsDevice, effect);
-    }
-
-    public GameEntity(INode[] nodes, IEdge[] edges)
-    {
-        _nodes = nodes;
-        _edges = edges;
+        foreach (Edge edge in Edges) edge.Draw(graphicsDevice, effect);
     }
 
     public JsonNode Serialize()
@@ -29,9 +24,9 @@ public class GameEntity : IGameEntity
         throw new System.NotImplementedException();
     }
 
-    public void Update(Node activeNode)
+    public void Update(Node activeNode, GameTime gametime)
     {
-        foreach (Edge e in _edges)
+        foreach (Edge e in Edges)
         {
             e.ApplyTension(activeNode);
         }
@@ -40,7 +35,7 @@ public class GameEntity : IGameEntity
     public void OnMouseDown(Vector2 mousePosition, ref Node activeNode)
     {
 
-        foreach (Node node in _nodes)
+        foreach (Node node in Nodes)
         {
             node.OnMouseDown(mousePosition);
             if (node.IsDragging) activeNode = node;
@@ -49,7 +44,7 @@ public class GameEntity : IGameEntity
 
     public void OnMouseUp(ref Node activeNode)
     {
-        foreach (Node node in _nodes)
+        foreach (Node node in Nodes)
         {
             node.OnMouseUp();
             if (activeNode != null)
@@ -58,5 +53,20 @@ public class GameEntity : IGameEntity
                 activeNode = null;
             }
         }
+    }
+
+    public void AddNode(Node node)
+    {
+        Nodes.Add(node);
+    }
+
+    public void AddEdge(Edge edge)
+    {
+        Edges.Add(edge);
+    }
+
+    public void AddEdge(Node node0, Node node1)
+    {
+        Edges.Add(new Edge(node0, node1));
     }
 }
