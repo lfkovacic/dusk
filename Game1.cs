@@ -71,14 +71,25 @@ public class Game1 : Game
     private void OnMousePressed(Vector2 position)
     {
 
-        Node mousedNode = _entityManager.GetNodeWithMouseInside(position);
-        if (mousedNode != null)
+        Node mousedNode = _entityManager.GetNodeWithMouseInsideFromAllEntities(position);
+        Node activeNode = _entityManager.GetActiveNode();
+        if (activeNode != null && activeNode.IsMouseInside(position)) _entityManager.SetActiveNode(mousedNode);
+        if (mousedNode != null && _entityManager.ActiveEntity != null)
         {
+
+
             _entityManager.ConnectToActiveNode(mousedNode);
             _entityManager.CancelAction();
+
         }
         if (_entityManager.IsAddingNewNode)
         {
+            if (mousedNode != null)
+            {
+                _entityManager.SetActiveNode(mousedNode);
+                _entityManager.StartAddingNewNode();
+            }
+            else
             if (_entityManager.ActiveEntity == null)
             {
                 var entity = new GameEntity([], []);
@@ -97,10 +108,6 @@ public class Game1 : Game
 
             _entityManager.AddNodeToActiveEntity(new Vector3(position, 0));
             _entityManager.StartAddingNewNode();
-        }
-        if (_entityManager.IsConnectingNodes && _entityManager.GetActiveNode().IsMouseInside(position))
-        {
-            // _entityManager.ConnectToActiveNode(mousedNode);
         }
 
         if (!_entityManager.IsConnectingNodes)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using dusk.mejjiq.entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -9,6 +10,9 @@ namespace dusk.mejjiq.manager
 {
     public class EntityManager
     {
+
+        //Any action perfomed with an entity is perfomed with the ACTIVE entity by default unless specified otherwise in method name
+        //Same goes for nodes
         private List<GameEntity> _entities;
         private GameEntity _activeEntity;
 
@@ -66,12 +70,35 @@ namespace dusk.mejjiq.manager
             return _activeNode;
         }
 
+        public void SetActiveNode(Node node)
+        {
+            _activeNode = node;
+
+        }
+
         public Node GetNodeWithMouseInside(Vector2 mousePosition)
         {
             if (_activeEntity == null) return null;
             foreach (Node n in _activeEntity.Nodes)
             {
                 if (n.IsMouseInside(mousePosition)) return n;
+            }
+            return null;
+        }
+
+        public Node GetNodeWithMouseInsideFromAllEntities(Vector2 mousePosition)
+        {
+            foreach (GameEntity entity in _entities)
+            {
+                foreach (Node n in entity.Nodes)
+                {
+                    bool isInside = n.IsMouseInside(mousePosition);
+                    if (isInside)
+                    {
+                        if (_activeEntity != entity && _activeEntity != null) MergeEntities(entity);
+                        return n;
+                    }
+                }
             }
             return null;
         }
@@ -105,8 +132,10 @@ namespace dusk.mejjiq.manager
             }
         }
 
-        public void ConnectToActiveNode(Node node) {
-            if (_activeNode != null) {
+        public void ConnectToActiveNode(Node node)
+        {
+            if (_activeNode != null)
+            {
                 var newEdge = new Edge(_activeNode, node, Vector3.Distance(_activeNode.Position, node.Position));
                 _activeEntity.AddEdge(newEdge);
             }
@@ -136,9 +165,19 @@ namespace dusk.mejjiq.manager
             _entities.Add(entity);
         }
 
-        public void MergeEntities(GameEntity entity0, GameEntity entity1)
-        {
 
+
+        public void MergeEntities(GameEntity entity)
+        {
+            GameEntity entityUnion = new GameEntity(
+                _activeEntity.Nodes.Union(entity.Nodes).ToList(),
+                _activeEntity.Edges.Union(entity.Edges).ToList()
+            );
+            _entities.Remove(_activeEntity);
+            _entities.Remove(entity);
+
+            _activeEntity = entityUnion;
+            _entities.Add(_activeEntity);
         }
     }
 }
