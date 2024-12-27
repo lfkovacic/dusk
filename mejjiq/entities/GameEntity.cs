@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Nodes;
 using dusk.mejjiq.entities.@interface;
 using Microsoft.Xna.Framework;
@@ -16,6 +17,8 @@ public class GameEntity(List<INode> nodes, List<IEdge> edges) : IGameEntity
 
     public void Draw(GraphicsDevice graphicsDevice, BasicEffect effect)
     {
+        if (Edges.Count == 0)
+            foreach (Node node in Nodes) node.Draw(graphicsDevice, effect);
         foreach (Edge edge in Edges) edge.Draw(graphicsDevice, effect);
     }
 
@@ -69,4 +72,5 @@ public class GameEntity(List<INode> nodes, List<IEdge> edges) : IGameEntity
     {
         Edges.Add(new Edge(node0, node1));
     }
+
 }

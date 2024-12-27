@@ -24,6 +24,7 @@ public class Game1 : Game
     private SpriteBatch _spriteBatch;
 
     private Button _button1;
+    private Button _button2;
 
     public Game1()
     {
@@ -67,27 +68,55 @@ public class Game1 : Game
         _entityManager.AddEntity(gameEntity);
     }
 
-    private void OnMousePressed(Vector2 position){
-        foreach (var entity in _entityManager.GetAllEntities()){
+    private void OnMousePressed(Vector2 position)
+    {
+        if (_entityManager.IsAddingNewNode)
+        {
+            if (_entityManager.ActiveEntity == null)
+            {
+                var entity = new GameEntity([], []);
+                _entityManager.SetActiveEntity(entity);
+                _entityManager.AddNodeToActiveEntity(new Vector3(position, 0));
+                _entityManager.AddEntity(entity);
+                _entityManager.StartConnectingNodes();
+            } else {
+                _entityManager.StartConnectingNodes();
+            }
+        }
+        if (_entityManager.IsConnectingNodes && !_entityManager.GetActiveNode().IsMouseInside(position))
+        {
+
+            _entityManager.AddNodeToActiveEntity(new Vector3(position, 0));
+            _entityManager.StartAddingNewNode();
+        }
+        //TODO: Connecting nodes
+        foreach (var entity in _entityManager.GetAllEntities())
+        {
             entity.OnMouseDown(position, ref _activeNode);
         }
+
     }
 
-    private void OnMouseMoved(Vector2 position){
+    private void OnMouseMoved(Vector2 position)
+    {
         if (_activeNode == null) return;
         _activeNode.OnMouseMove(position);
     }
 
-    private void OnMouseReleased(Vector2 position){
-        foreach (var entity in _entityManager.GetAllEntities()) {
-            entity.OnMouseUp(ref _activeNode);            
+    private void OnMouseReleased(Vector2 position)
+    {
+        foreach (var entity in _entityManager.GetAllEntities())
+        {
+            entity.OnMouseUp(ref _activeNode);
         }
     }
 
-    private void OnKeyPressed(Keys k){
+    private void OnKeyPressed(Keys k)
+    {
 
     }
-    private void OnKeyReleased(Keys k){
+    private void OnKeyReleased(Keys k)
+    {
 
     }
 
@@ -117,6 +146,15 @@ public class Game1 : Game
             "test",
             _defaultFont
             );
+
+        _button2 = new Button(
+            new Rectangle(20, 100, 200, 60),
+            _eventManager,
+            new Action(() => _entityManager.StartAddingNewNode()),
+            "Add new node",
+            _defaultFont
+        );
+
         int resolutionWidth = ConfigManager.GetIntValue("Graphics", "ResolutionWidth");
         int resolutionHeight = ConfigManager.GetIntValue("Graphics", "ResolutionHeight");
         bool fullscreen = ConfigManager.GetBoolValue("Graphics", "Fullscreen");
@@ -142,17 +180,20 @@ public class Game1 : Game
 
         LoadGrid();
 
-        
+
 
         // Load the triangle state
         LoadGameEntities();
     }
-    
+
 
     protected override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
         _eventManager.Update(gameTime);
+
+        _button1.Update(Mouse.GetState());
+        _button2.Update(Mouse.GetState());
 
         foreach (GameEntity entity in _entityManager.GetAllEntities())
         {
@@ -171,6 +212,7 @@ public class Game1 : Game
         _entityManager.Draw(GraphicsDevice, _basicEffect);
         _spriteBatch.Begin();
         _button1.Draw(_spriteBatch, Color.Green, Color.DarkGreen, Color.Black);
+        _button2.Draw(_spriteBatch, Color.Green, Color.DarkGreen, Color.Black);
         _spriteBatch.End();
         base.Draw(gameTime);
     }

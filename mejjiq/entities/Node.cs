@@ -149,7 +149,7 @@ public class Node : INode, ISaveable
 
     public void Update()
     {
-        if (CurrentVelocity == Vector3.Zero) return; 
+        if (CurrentVelocity == Vector3.Zero) return;
         if (CurrentVelocity.Length() < _vectorUpdateThreshold) CurrentVelocity = Vector3.Zero; //Don't bother calculating velocity below a certain theshold
         Position += CurrentVelocity;
     }

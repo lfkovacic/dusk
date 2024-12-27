@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using dusk.mejjiq.entities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace dusk.mejjiq.manager
 {
@@ -22,7 +23,8 @@ namespace dusk.mejjiq.manager
             _isConnectingNodes = false;
         }
 
-        public List<GameEntity> GetAllEntities(){
+        public List<GameEntity> GetAllEntities()
+        {
             return _entities;
         }
 
@@ -58,6 +60,21 @@ namespace dusk.mejjiq.manager
             _isConnectingNodes = false;
         }
 
+        public Node GetActiveNode()
+        {
+            return _activeNode;
+        }
+
+        public Node GetNodeWithMouseInside(Vector2 mousePosition)
+        {
+            if (_activeEntity == null) return null;
+            foreach (Node n in _activeEntity.Nodes)
+            {
+                if (n.IsMouseInside(mousePosition)) return n;
+            }
+            return null;
+        }
+
         // Add a new node to the active entity
         public void AddNodeToActiveEntity(Vector3 position)
         {
@@ -65,6 +82,15 @@ namespace dusk.mejjiq.manager
             {
                 var newNode = new Node(_activeEntity.Nodes.Count, position);
                 _activeEntity.AddNode(newNode);
+                _activeNode = newNode;
+            }
+            if (_activeEntity != null && _isConnectingNodes)
+            {
+                var newNode = new Node(_activeEntity.Nodes.Count, position);
+                _activeEntity.AddNode(newNode);
+                _activeEntity.AddEdge(
+                    new Edge(_activeNode, newNode, Vector3.Distance(_activeNode.Position, newNode.Position)));
+                _activeNode = newNode;
             }
         }
 
@@ -100,6 +126,11 @@ namespace dusk.mejjiq.manager
         public void AddEntity(GameEntity entity)
         {
             _entities.Add(entity);
+        }
+
+        public void MergeEntities(GameEntity entity0, GameEntity entity1)
+        {
+
         }
     }
 }
