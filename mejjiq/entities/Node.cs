@@ -14,14 +14,19 @@ namespace dusk.mejjiq.entities;
 public class Node : INode, ISaveable
 {
     public int ID { get; set; }
+
+    //Position
     public float X { get; set; }
     public float Y { get; set; }
     public float Z { get; set; }
 
-    public int NodeRadius { get; set; } = 10;
-    public bool IsDragging { get; set;} = false;  // To track if the node is being dragged
-    private Vector2 _dragOffset;       // To store the offset from the mouse click position
+    //Velocity
+    public float Dx { get; private set; }
+    public float Dy { get; private set; }
+    public float Dz { get; private set; }
 
+    public int NodeRadius { get; set; } = 10;
+    public bool IsDragging { get; set; } = false;  // To track if the node is being dragged
     private readonly List<int> _connectedNodeIDs = []; // Used for serialization
     private readonly List<INode> _connections = [];   // Runtime connections
 
@@ -36,19 +41,27 @@ public class Node : INode, ISaveable
         }
     }
 
+    public Vector3 CurrentVelocity
+    {
+        get => new(Dx, Dy, Dz);
+        set
+        {
+            Dx = value.X;
+            Dy = value.Y;
+            Dz = value.Z;
+        }
+    }
+
+
+
     public Node() { }
 
     public Node(int id, Vector3 position)
     {
         ID = id;
         Position = position;
-    }
-    public Node(int id, float x, float y, float z)
-    {
-        ID = id;
-        X = x;
-        Y = y;
-        Z = z;
+        CurrentVelocity = new Vector3(0, 0, 0);
+
     }
     // Method to check if the mouse is inside the node's circle
     public bool IsMouseInside(Vector2 mousePosition)
@@ -162,9 +175,13 @@ public class Node : INode, ISaveable
 
         var node = new Node
         (
-            obj[nameof(ID)]?.GetValue<int>() ?? 0, obj[nameof(X)]?.GetValue<float>() ?? 0,
-            obj[nameof(Y)]?.GetValue<float>() ?? 0,
-            obj[nameof(Z)]?.GetValue<float>() ?? 0
+            obj[nameof(ID)]?.GetValue<int>() ?? 0,
+            new Vector3
+            (
+                obj[nameof(X)]?.GetValue<float>() ?? 0,
+                obj[nameof(Y)]?.GetValue<float>() ?? 0,
+                obj[nameof(Z)]?.GetValue<float>() ?? 0
+            )
         );
 
         if (obj["ConnectedNodeIDs"] is JsonArray array)
@@ -185,6 +202,11 @@ public class Node : INode, ISaveable
                 _connections.Add(connectedNode);
             }
         }
+    }
+
+    public void MoveByVector(Vector3 vector)
+    {
+        Position += vector;
     }
 
 }

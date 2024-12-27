@@ -33,6 +33,7 @@ public class Game1 : Game
         // Create the second triangle (Triangle 2), sharing node2 and node3
         var node4 = new Node(3, new Vector3(700, 800, 0));  // New node for Triangle 2
         var triangle2 = new Triangle(GraphicsDevice, node2, node3, node4);
+        triangle2.GetEdge(0).MinLength = 50f;
 
         // Create a GameEntity with these two triangles
         _gameEntity = new GameEntity([triangle1, triangle2]);

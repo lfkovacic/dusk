@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text.Json.Nodes;
 using dusk.mejjiq.entities.@interface;
+using dusk.mejjiq.math;
 
 namespace dusk.mejjiq.entities;
 
@@ -12,7 +13,7 @@ public class Edge : IEdge
 {
     public INode[] Nodes { get; set; } = new INode[2];
     public float MinLength { get; set; } = 200f; // Minimum length where tension starts to approach zero
-
+    public float TensionCoefficient = 2f; //The higher this valiue, the less springy
     public Edge(INode node0, INode node1)
     {
         Nodes[0] = node0;
@@ -34,42 +35,7 @@ public class Edge : IEdge
     // Apply the tension with a logarithmic scaling
     public void ApplyTension(Node activeNode)
     {
-
-        //TODO: better
-        if (Nodes[1] == activeNode) return;
-        // Get the positions of both nodes
-        var position0 = Nodes[0].Position;
-        var position1 = Nodes[1].Position;
-
-        // Calculate the direction vector (difference between positions)
-        var direction = position1 - position0;
-
-        // Calculate the distance between the two nodes
-        float distance = direction.Length();
-
-        // If the distance is smaller than the min length, we should try to restore to equilibrium
-        if (distance < MinLength)
-        {
-            // Calculate the tension factor (logarithmic scale)
-            float tensionFactor = (float)Math.Log(MinLength / distance) / 10f;
-
-            // Apply tension to move Node 1 away from Node 0, restoring equilibrium
-            var movement = direction * tensionFactor;
-
-            // Move Node 1 away from Node 0 to restore the distance to minLength
-            Nodes[1].Position = position1 + movement;
-        }
-        else
-        {
-            // Calculate the tension factor (logarithmic scale) when distance is larger than minLength
-            float tensionFactor = (float)Math.Log(distance / MinLength);
-
-            // Apply the tension to move Node 1 closer to Node 0
-            var movement = direction * tensionFactor;
-
-            // Move Node 1 closer to Node 0
-            Nodes[1].Position = position1 - movement;
-        }
+        MathUtils.ApplyTension(this, activeNode);
     }
 
 

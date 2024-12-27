@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using dusk.mejjiq.entities;
 using Microsoft.Xna.Framework;
 
 namespace dusk.mejjiq.math;
@@ -24,6 +25,24 @@ public static class MathUtils
 
         return points;
     }
-    
 
+    public static void ApplyTension(Edge edge, Node activeNode){
+        
+        var node0 = edge.GetNodes()[0];
+        var node1 = edge.GetNodes()[1];
+
+        // if (node0 == activeNode) return;
+
+        var position0 = node0.Position;
+        var position1 = node1.Position;
+
+        var direction = position1 - position0;
+
+        float distance = direction.Length();
+        float distanceRatio = edge.MinLength/distance;
+
+        float distanceLog = (float)Math.Log(distanceRatio);
+
+        ((Node)node1).MoveByVector(direction*distanceLog/edge.TensionCoefficient);
+    }
 }
