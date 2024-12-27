@@ -70,6 +70,13 @@ public class Game1 : Game
 
     private void OnMousePressed(Vector2 position)
     {
+
+        Node mousedNode = _entityManager.GetNodeWithMouseInside(position);
+        if (mousedNode != null)
+        {
+            _entityManager.ConnectToActiveNode(mousedNode);
+            _entityManager.CancelAction();
+        }
         if (_entityManager.IsAddingNewNode)
         {
             if (_entityManager.ActiveEntity == null)
@@ -79,7 +86,9 @@ public class Game1 : Game
                 _entityManager.AddNodeToActiveEntity(new Vector3(position, 0));
                 _entityManager.AddEntity(entity);
                 _entityManager.StartConnectingNodes();
-            } else {
+            }
+            else
+            {
                 _entityManager.StartConnectingNodes();
             }
         }
@@ -89,11 +98,17 @@ public class Game1 : Game
             _entityManager.AddNodeToActiveEntity(new Vector3(position, 0));
             _entityManager.StartAddingNewNode();
         }
-        //TODO: Connecting nodes
-        foreach (var entity in _entityManager.GetAllEntities())
+        if (_entityManager.IsConnectingNodes && _entityManager.GetActiveNode().IsMouseInside(position))
         {
-            entity.OnMouseDown(position, ref _activeNode);
+            // _entityManager.ConnectToActiveNode(mousedNode);
         }
+
+        if (!_entityManager.IsConnectingNodes)
+
+            foreach (var entity in _entityManager.GetAllEntities())
+            {
+                entity.OnMouseDown(position, ref _activeNode);
+            }
 
     }
 

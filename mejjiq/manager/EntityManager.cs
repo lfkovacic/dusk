@@ -58,6 +58,7 @@ namespace dusk.mejjiq.manager
         {
             _isAddingNewNode = false;
             _isConnectingNodes = false;
+            _activeEntity = null;
         }
 
         public Node GetActiveNode()
@@ -100,6 +101,13 @@ namespace dusk.mejjiq.manager
             if (_activeEntity != null && _isConnectingNodes)
             {
                 var newEdge = new Edge(node1, node2, Vector3.Distance(node1.Position, node2.Position));
+                _activeEntity.AddEdge(newEdge);
+            }
+        }
+
+        public void ConnectToActiveNode(Node node) {
+            if (_activeNode != null) {
+                var newEdge = new Edge(_activeNode, node, Vector3.Distance(_activeNode.Position, node.Position));
                 _activeEntity.AddEdge(newEdge);
             }
         }
