@@ -24,19 +24,22 @@ public class Game1 : Game
     private void LoadGameEntity()
     {
         // Create the first triangle (Triangle 1)
-        var node1 = new Node(0, new Vector3(400, 400, 0));
-        var node2 = new Node(1, new Vector3(500, 400, 0));
-        var node3 = new Node(2, new Vector3(600, 200, 0));
+        var node0 = new Node(0, new Vector3(400, 400, 0));
+        var node1 = new Node(1, new Vector3(500, 400, 0));
+        var node2 = new Node(2, new Vector3(600, 200, 0));
+        var node3 = new Node(3, new Vector3(700, 800, 0));
 
-        var triangle1 = new Triangle(GraphicsDevice, node1, node2, node3);
-
-        // Create the second triangle (Triangle 2), sharing node2 and node3
-        var node4 = new Node(3, new Vector3(700, 800, 0));  // New node for Triangle 2
-        var triangle2 = new Triangle(GraphicsDevice, node2, node3, node4);
-        triangle2.GetEdge(0).MinLength = 50f;
+        var edge0 = new Edge(node0, node1, 100f);
+        var edge1 = new Edge(node1, node2, 100f);
+        var edge2 = new Edge(node2, node0, 100f);
+        var edge3 = new Edge(node1, node3, 50f);
+        var edge4 = new Edge(node3, node2, 50f);
 
         // Create a GameEntity with these two triangles
-        _gameEntity = new GameEntity([triangle1, triangle2]);
+        _gameEntity = new GameEntity(
+            [node0, node1, node2, node3],
+            [edge0, edge1, edge2, edge3, edge4]
+        );
     }
 
     protected override void Initialize()
@@ -112,7 +115,7 @@ public class Game1 : Game
     {
         GraphicsDevice.Clear(Color.Black);
 
-        _gameEntity.Draw(_basicEffect);
+        _gameEntity.Draw(GraphicsDevice, _basicEffect);
         base.Draw(gameTime);
     }
 

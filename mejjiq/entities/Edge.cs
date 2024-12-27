@@ -1,11 +1,12 @@
-using System;
-using System.Data;
+
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Text.Json.Nodes;
 using dusk.mejjiq.entities.@interface;
+using dusk.mejjiq.manager;
 using dusk.mejjiq.math;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace dusk.mejjiq.entities;
 
@@ -36,6 +37,32 @@ public class Edge : IEdge
     public void ApplyTension(Node activeNode)
     {
         MathUtils.ApplyTension(this, activeNode);
+    }
+
+    public void Draw(GraphicsDevice graphicsDevice, BasicEffect effect)
+    {
+        var green = Color.Green;
+        var pos0 = new VertexPositionColor(Nodes[0].Position, green);
+        var pos1 = new VertexPositionColor(Nodes[1].Position, green);
+        var vertices = new[]
+            {
+                pos0,
+                pos1
+            }
+        .ToArray();
+
+        foreach (var pass in effect.CurrentTechnique.Passes)
+        {
+            pass.Apply();
+            graphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, 1);
+            if (ConfigManager.GetValue("Misc", "DebugMode") == "true")
+            {
+                foreach (Node node in Nodes)
+                {
+                    node.Draw(graphicsDevice, effect);
+                }
+            }
+        }
     }
 
 

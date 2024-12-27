@@ -8,5 +8,5 @@ public interface IGameEntity{
     JsonNode Serialize();
 
     void Update(Node activeNode);
-    void Draw(BasicEffect effect);
+    void Draw(GraphicsDevice graphicsDevice, BasicEffect effect);
 }

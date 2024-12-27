@@ -7,17 +7,21 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace dusk.mejjiq.entities;
 
-public class GameEntity(Triangle[] _segments) : IGameEntity
+public class GameEntity : IGameEntity
 {
 
-    private readonly Triangle[] _segments = _segments;
+    private INode[] _nodes { get; set; }
+    private IEdge[] _edges { get; set; }
 
-    public void Draw(BasicEffect effect)
+    public void Draw(GraphicsDevice graphicsDevice, BasicEffect effect)
     {
-        foreach (Triangle triangle in _segments)
-        {
-            triangle.Draw(effect);
-        }
+        foreach (Edge edge in _edges) edge.Draw(graphicsDevice, effect);
+    }
+
+    public GameEntity(INode[] nodes, IEdge[] edges)
+    {
+        _nodes = nodes;
+        _edges = edges;
     }
 
     public JsonNode Serialize()
@@ -27,52 +31,32 @@ public class GameEntity(Triangle[] _segments) : IGameEntity
 
     public void Update(Node activeNode)
     {
-        foreach (Triangle triangle in _segments)
+        foreach (Edge e in _edges)
         {
-            foreach (Edge e in triangle.GetAllEdges())
-            {
-                e.ApplyTension(activeNode);
-            }
+            e.ApplyTension(activeNode);
         }
     }
 
     public void OnMouseDown(Vector2 mousePosition, ref Node activeNode)
     {
 
-        foreach (Triangle triangle in _segments)
+        foreach (Node node in _nodes)
         {
-            foreach (Node node in triangle._nodes)
-            {
-                node.OnMouseDown(mousePosition);
-                if (node.IsDragging) activeNode = node;
-            }
+            node.OnMouseDown(mousePosition);
+            if (node.IsDragging) activeNode = node;
         }
     }
 
     public void OnMouseUp(ref Node activeNode)
     {
-        foreach (Triangle triangle in _segments)
+        foreach (Node node in _nodes)
         {
-            foreach (Node node in triangle._nodes)
+            node.OnMouseUp();
+            if (activeNode != null)
             {
-                node.OnMouseUp();
-                if (activeNode != null)
-                {
-                    activeNode.IsDragging = false;
-                    activeNode = null;
-                }
+                activeNode.IsDragging = false;
+                activeNode = null;
             }
         }
     }
-
-    // public void OnMouseMove(Vector2 mousePosition, Node activeNode)
-    // {
-    //     foreach (Triangle triangle in _segments)
-    //     {
-    //         foreach (Node node in triangle._nodes)
-    //         {
-    //             activeNode.OnMouseMove(mousePosition);
-    //         }
-    //     }
-    // }
 }

@@ -1,4 +1,4 @@
-using System.Numerics;
+using Microsoft.Xna.Framework;
 using System.Text.Json.Nodes;
 
 namespace dusk.mejjiq.entities.@interface;

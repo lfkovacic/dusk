@@ -6,3 +6,4 @@ obj/dusk.csproj.nuget.dgspec.json
 Content/obj/DesktopGL/net8.0/Content/.mgstats
 
 .fake
+obj/Debug/net8.0/dusk.AssemblyInfo.cs

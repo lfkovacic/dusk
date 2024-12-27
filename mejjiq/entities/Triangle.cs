@@ -21,7 +21,7 @@ public class Triangle
     {
         _graphicsDevice = graphicsDevice;
 
-        _nodes = new[] { node1, node2, node3 };
+        _nodes = [node1, node2, node3];
         _edges = CalculateEdges(); // Initialize edges
     }
 
