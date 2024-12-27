@@ -14,7 +14,7 @@ public class Edge : IEdge
 {
     public INode[] Nodes { get; set; } = new INode[2];
     public float MinLength { get; set; } = 200f; // Minimum length where tension starts to approach zero
-    public float TensionCoefficient = 2f; //The higher this valiue, the less springy
+    public float TensionCoefficient = 20f; //The higher this valiue, the less springy
     public Edge(INode node0, INode node1)
     {
         Nodes[0] = node0;
@@ -36,8 +36,21 @@ public class Edge : IEdge
     // Apply the tension with a logarithmic scaling
     public void ApplyTension(Node activeNode)
     {
-        MathUtils.ApplyTension(this, activeNode);
+        var node0 = (Node)Nodes[0];
+        var node1 = (Node)Nodes[1];
+
+        var frictionCoefficient = 0.95f;
+
+        var tensionVector = MathUtils.GetTensionVector(this, activeNode);
+        node0.UpdateWithVector(tensionVector);
+        node1.UpdateWithVector(-tensionVector);
+
+        node0.ApplyFriction(frictionCoefficient);
+        node1.ApplyFriction(frictionCoefficient);
     }
+
+    
+
 
     public void Draw(GraphicsDevice graphicsDevice, BasicEffect effect)
     {

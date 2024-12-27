@@ -8,6 +8,7 @@ using System.IO;
 using Microsoft.Xna.Framework.Graphics;
 using dusk.mejjiq.math;
 using System;
+using dusk.mejjiq.manager;
 
 namespace dusk.mejjiq.entities;
 
@@ -51,6 +52,8 @@ public class Node : INode, ISaveable
             Dz = value.Z;
         }
     }
+
+    private readonly float _vectorUpdateThreshold = ConfigManager.GetFloatValue("Physics", "VectorUpdateThreshold");
 
 
 
@@ -137,6 +140,24 @@ public class Node : INode, ISaveable
             ["ConnectedNodeIDs"] = JsonUtils.ToJsonArray(_connectedNodeIDs)
         };
         return jsonObject;
+    }
+
+    public void UpdateWithVector(Vector3 vector)
+    {
+        CurrentVelocity += vector;
+        Update();
+    }
+
+    public void Update()
+    {
+        if (CurrentVelocity == Vector3.Zero) return;
+        if (CurrentVelocity.Length() < _vectorUpdateThreshold) CurrentVelocity = Vector3.Zero;
+        Position += CurrentVelocity;
+    }
+
+    public void ApplyFriction(float friction)
+    {
+        CurrentVelocity *= friction;
     }
 
     public void Draw(GraphicsDevice graphicsDevice, BasicEffect effect)

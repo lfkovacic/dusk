@@ -77,17 +77,15 @@ namespace dusk.mejjiq.manager
             };
 
             // Write the default config to the file
-            using (var writer = new StreamWriter(_filePath))
+            using var writer = new StreamWriter(_filePath);
+            foreach (var section in defaultConfig)
             {
-                foreach (var section in defaultConfig)
+                writer.WriteLine($"[{section.Key}]");
+                foreach (var kvp in section.Value)
                 {
-                    writer.WriteLine($"[{section.Key}]");
-                    foreach (var kvp in section.Value)
-                    {
-                        writer.WriteLine($"{kvp.Key}={kvp.Value}");
-                    }
-                    writer.WriteLine();
+                    writer.WriteLine($"{kvp.Key}={kvp.Value}");
                 }
+                writer.WriteLine();
             }
         }
 
@@ -110,6 +108,10 @@ namespace dusk.mejjiq.manager
         public static bool GetBoolValue(string section, string key)
         {
             return bool.Parse(GetValue(section, key));
+        }
+
+        public static float GetFloatValue(string section, string key){
+            return float.Parse(GetValue(section, key));
         }
     }
 }

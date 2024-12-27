@@ -8,7 +8,7 @@ public static class MathUtils
 {
     public static List<Vector3> GenerateCircleEdges(Vector3 center, float radius, int resolution)
     {
-        List<Vector3> points = new List<Vector3>();
+        List<Vector3> points = [];
 
         for (int i = 0; i < resolution; i++)
         {
@@ -26,7 +26,7 @@ public static class MathUtils
         return points;
     }
 
-    public static void ApplyTension(Edge edge, Node activeNode)
+    public static Vector3 GetTensionVector(Edge edge, Node activeNode)
     {
 
         var node0 = edge.GetNodes()[0];
@@ -43,7 +43,9 @@ public static class MathUtils
         float distanceRatio = edge.MinLength / distance;
 
         float distanceLog = (float)Math.Log(distanceRatio);
-        ((Node)node0).MoveByVector(-direction * distanceLog / edge.TensionCoefficient);
-        ((Node)node1).MoveByVector(direction * distanceLog / edge.TensionCoefficient);
+
+        var tensionVector = -direction * distanceLog / edge.TensionCoefficient;
+        return tensionVector;
     }
+
 }
