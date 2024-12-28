@@ -1,7 +1,4 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using dusk.mejjiq.entities;
 using dusk.mejjiq.manager;
 using dusk.mejjiq.ui.elements;
@@ -11,6 +8,9 @@ using Microsoft.Xna.Framework.Input;
 
 namespace dusk;
 
+/// <summary>
+/// The main game class that handles initialization, updating, and drawing game components.
+/// </summary>
 public class Game1 : Game
 {
     private GraphicsDeviceManager _graphicsManager;
@@ -18,14 +18,16 @@ public class Game1 : Game
     private EntityManager _entityManager;
     private BasicEffect _basicEffect;
     private Grid _grid;
-    private Node _activeNode = null;
 
     private SpriteFont _defaultFont;
     private SpriteBatch _spriteBatch;
 
-    private Button _button1;
-    private Button _button2;
+    private Button _button1; // TODO: Move buttons into a dedicated ButtonManager
+    private Button _button2; // TODO: Move buttons into a dedicated ButtonManager
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Game1"/> class.
+    /// </summary>
     public Game1()
     {
         _graphicsManager = new GraphicsDeviceManager(this);
@@ -33,19 +35,29 @@ public class Game1 : Game
         IsMouseVisible = true;
     }
 
+    /// <summary>
+    /// Loads game content such as fonts, textures, and other resources.
+    /// </summary>
     protected override void LoadContent()
     {
         _defaultFont = Content.Load<SpriteFont>("Arial");
     }
 
+    /// <summary>
+    /// Initializes the grid used in the game.
+    /// </summary>
     private void LoadGrid()
     {
         _grid = new Grid();
     }
 
+    /// <summary>
+    /// Loads the initial set of game entities and adds them to the <see cref="EntityManager"/>.
+    /// </summary>
     private void LoadGameEntities()
     {
-        // Create the first triangle (Triangle 1)
+        // Hardcoded definition of an entity for testing purposes
+        //TODO: finish json (de)serialization
         var node0 = new Node(0, new Vector3(400, 400, 0));
         var node1 = new Node(1, new Vector3(500, 400, 0));
         var node2 = new Node(2, new Vector3(600, 200, 0));
@@ -57,7 +69,6 @@ public class Game1 : Game
         var edge3 = new Edge(node1, node3, 50f);
         var edge4 = new Edge(node3, node2, 50f);
 
-        // Create a GameEntity with these triangles
         var gameEntity = new GameEntity(
             [node0, node1, node2, node3],
             [edge0, edge1, edge2, edge3, edge4]
@@ -68,31 +79,54 @@ public class Game1 : Game
         _entityManager.AddEntity(gameEntity);
     }
 
+    /// <summary>
+    /// Handles global mouse press events.
+    /// </summary>
+    /// <param name="position">The position of the mouse at the time of the press.</param>
     private void OnMousePressed(Vector2 position)
     {
-        
-
+        // Global mouse press events
     }
 
+    /// <summary>
+    /// Handles global mouse movement events.
+    /// </summary>
+    /// <param name="position">The current position of the mouse.</param>
     private void OnMouseMoved(Vector2 position)
     {
-        
+        // Global mouse move events
     }
 
+    /// <summary>
+    /// Handles global mouse release events.
+    /// </summary>
+    /// <param name="position">The position of the mouse at the time of the release.</param>
     private void OnMouseReleased(Vector2 position)
     {
-        
+        // Global mouse release events
     }
 
+    /// <summary>
+    /// Handles global key press events.
+    /// </summary>
+    /// <param name="k">The key that was pressed.</param>
     private void OnKeyPressed(Keys k)
     {
-
+        // Global key press events
     }
+
+    /// <summary>
+    /// Handles global key release events.
+    /// </summary>
+    /// <param name="k">The key that was released.</param>
     private void OnKeyReleased(Keys k)
     {
-
+        // Global key release events
     }
 
+    /// <summary>
+    /// Initializes game components, config settings, and managers.
+    /// </summary>
     protected override void Initialize()
     {
         base.Initialize();
@@ -118,7 +152,7 @@ public class Game1 : Game
             new Action(() => Console.WriteLine("Button pressed!")),
             "test",
             _defaultFont
-            );
+        );
 
         _button2 = new Button(
             new Rectangle(20, 100, 200, 60),
@@ -140,7 +174,6 @@ public class Game1 : Game
         _graphicsManager.ApplyChanges();
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-
         // Set up the BasicEffect
         _basicEffect = new BasicEffect(GraphicsDevice)
         {
@@ -152,38 +185,48 @@ public class Game1 : Game
         };
 
         LoadGrid();
-        // Load the entity
         LoadGameEntities();
     }
 
-
+    /// <summary>
+    /// Updates game logic such as entities, events, and UI components.
+    /// </summary>
+    /// <param name="gameTime">Provides a snapshot of timing values.</param>
     protected override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
         _eventManager.Update(gameTime);
 
+        // TODO: Move button updates to a dedicated ButtonManager
         _button1.Update(Mouse.GetState());
         _button2.Update(Mouse.GetState());
 
         _entityManager.Update(gameTime);
-
     }
 
+    /// <summary>
+    /// Draws all game components to the screen.
+    /// </summary>
+    /// <param name="gameTime">Provides a snapshot of timing values.</param>
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.Black);
 
-
         _grid.Draw(GraphicsDevice, _basicEffect);
 
         _entityManager.Draw(GraphicsDevice, _basicEffect);
+
         _spriteBatch.Begin();
         _button1.Draw(_spriteBatch, Color.Green, Color.DarkGreen, Color.Black);
         _button2.Draw(_spriteBatch, Color.Green, Color.DarkGreen, Color.Black);
         _spriteBatch.End();
+
         base.Draw(gameTime);
     }
 
+    /// <summary>
+    /// Handles game exit logic.
+    /// </summary>
     protected override void OnExiting(object sender, ExitingEventArgs args)
     {
         base.OnExiting(sender, args);
