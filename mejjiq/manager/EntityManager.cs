@@ -51,7 +51,7 @@ namespace dusk.mejjiq.manager
             Node mousedNode = GetNodeWithMouseInsideFromAllEntities(position);
             if (IsConnectingNodes)
             {
-                if (mousedNode != null && _activeNode != null)
+                if (mousedNode != null && _activeNode != null && mousedNode != _activeNode)
                 {
                     _activeEntity.AddEdge(_activeNode, mousedNode);
                     _activeNode = null;
@@ -64,12 +64,9 @@ namespace dusk.mejjiq.manager
                     _activeEntity.AddEdge(_activeNode, newNode);
                     _activeNode = newNode;
                 }
-                if (mousedNode == null && _activeNode != null)
+                if (mousedNode != null && _activeNode != null && mousedNode == _activeNode)
                 {
-                    // Node newNode = new Node(_activeEntity.Nodes.Count, new Vector3(position, 0));
-                    // _activeEntity.AddNode(newNode);
-                    // _activeEntity.AddEdge(_activeNode, newNode);
-                    // _activeNode = newNode;
+                    CancelAction();
                 }
             }
             if (IsAddingNewNode)
