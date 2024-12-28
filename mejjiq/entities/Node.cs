@@ -161,31 +161,8 @@ public class Node : INode, ISaveable
     public void Draw(GraphicsDevice graphicsDevice, BasicEffect effect)
     {
         var radius = NodeRadius;
-        var CircleResolution = 50;
-        var color = new Color(0x00ff00);
+        DrawUtils.DrawCircle(graphicsDevice, effect, Position, radius, new Color(0x00ff00));
 
-        // Generate the circle's vertices (edges)
-        List<Vector3> circleEdges = MathUtils.GenerateCircleEdges(new Vector3(X, Y, Z), radius, CircleResolution);
-
-        // Convert List<Vector3> to VertexPositionColor array
-        VertexPositionColor[] vertices = new VertexPositionColor[circleEdges.Count * 2]; // Each edge is a line
-
-        for (int i = 0; i < circleEdges.Count; i++)
-        {
-            // Connect the current point to the next point (looping back to 0 after the last point)
-            int nextIndex = (i + 1) % circleEdges.Count;
-
-            // Create the line between two points (current and next point)
-            vertices[i * 2] = new VertexPositionColor(circleEdges[i], color);
-            vertices[i * 2 + 1] = new VertexPositionColor(circleEdges[nextIndex], color);
-        }
-
-        // Draw the circle using BasicEffect
-        foreach (var pass in effect.CurrentTechnique.Passes)
-        {
-            pass.Apply();
-            graphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, circleEdges.Count);
-        }
     }
     public static ISaveable Deserialize(JsonNode serializedData)
     {

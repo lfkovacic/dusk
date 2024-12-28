@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using dusk.mejjiq.entities;
+using dusk.mejjiq.util;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -228,6 +229,7 @@ namespace dusk.mejjiq.manager
             {
                 entity.Draw(graphicsDevice, basicEffect);
             }
+            if (_activeNode != null) DrawUtils.DrawCircle(graphicsDevice, basicEffect, _activeNode.Position, 20, new Color(0x00ff00));
         }
 
         // Add a new entity to the manager
