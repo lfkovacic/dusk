@@ -22,6 +22,7 @@ public class Game1 : Game
     private SpriteFont _defaultFont;
     private SpriteBatch _spriteBatch;
 
+    private Panel _panel;
     private Button _button1; // TODO: Move buttons into a dedicated ButtonManager
     private Button _button2; // TODO: Move buttons into a dedicated ButtonManager
 
@@ -145,22 +146,22 @@ public class Game1 : Game
         _eventManager.KeyReleased += OnKeyReleased;
 
         LoadContent();
-
-        _button1 = new Button(
-            new Rectangle(20, 20, 200, 60),
+        _panel = new Panel(new Vector2(240, 20), new Vector2(400, 400));
+    
+        _panel.AddChild(new Button(
+            new Vector2(20, 20),new Vector2( 200, 60),
             _eventManager,
             new Action(() => Console.WriteLine("Button pressed!")),
             "test",
             _defaultFont
-        );
-
-        _button2 = new Button(
-            new Rectangle(20, 100, 200, 60),
+        ));
+        _panel.AddChild(_button2 = new Button(
+            new Vector2(20, 100), new Vector2(200, 60),
             _eventManager,
             new Action(() => { _entityManager.StartAddingNewNode(); _entityManager.SetActiveEntity(null); }),
             "Add new node",
             _defaultFont
-        );
+        ));
 
         int resolutionWidth = ConfigManager.GetIntValue("Graphics", "ResolutionWidth");
         int resolutionHeight = ConfigManager.GetIntValue("Graphics", "ResolutionHeight");
@@ -197,11 +198,10 @@ public class Game1 : Game
         base.Update(gameTime);
         _eventManager.Update(gameTime);
 
-        // TODO: Move button updates to a dedicated ButtonManager
-        _button1.Update(Mouse.GetState());
-        _button2.Update(Mouse.GetState());
-
         _entityManager.Update(gameTime);
+        var mouseState = Mouse.GetState();
+        _panel.HandleInput(mouseState);
+        _panel.Update(gameTime);
     }
 
     /// <summary>
@@ -217,8 +217,7 @@ public class Game1 : Game
         _entityManager.Draw(GraphicsDevice, _basicEffect);
 
         _spriteBatch.Begin();
-        _button1.Draw(_spriteBatch, Color.Green, Color.DarkGreen, Color.Black);
-        _button2.Draw(_spriteBatch, Color.Green, Color.DarkGreen, Color.Black);
+        _panel.Draw(_spriteBatch, null);
         _spriteBatch.End();
 
         base.Draw(gameTime);

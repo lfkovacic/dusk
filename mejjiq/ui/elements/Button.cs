@@ -6,9 +6,15 @@ using Microsoft.Xna.Framework.Input;
 
 namespace dusk.mejjiq.ui.elements
 {
-    public class Button
+    public class Button : IUIElement
     {
-        private Rectangle _bounds;
+        public Vector2 Position {get; set;}
+        public Vector2 Size {get; set;}
+
+        public Vector2 DragOffset {get; set;}
+        private Color _buttonColor = Color.Green;
+        private Color _hoverColor = Color.DarkGreen;
+        private Color _textColor = Color.Black;
         private bool _isHovering;
         private bool _wasPressed;
 
@@ -19,9 +25,10 @@ namespace dusk.mejjiq.ui.elements
         // Store a reference to the EventManager to subscribe to mouse events
         private EventManager _eventManager;
 
-        public Button(Rectangle bounds, EventManager eventManager, Action onClick, string text = "", SpriteFont font = null)
+        public Button(Vector2 position, Vector2 size, EventManager eventManager, Action onClick, string text = "", SpriteFont font = null)
         {
-            _bounds = bounds;
+            Position = position;
+            Size = size;
             _eventManager = eventManager;
             _onClick = onClick;  // Pass the Action to the Button
             _text = text;
@@ -36,9 +43,9 @@ namespace dusk.mejjiq.ui.elements
         private void OnMousePressed(Vector2 position)
         {
             var mousePosition = new Point((int)position.X, (int)position.Y);
-            if (_bounds.Contains(mousePosition) && !_wasPressed)
+            if (new Rectangle(Position.ToPoint(), Size.ToPoint()).Contains(mousePosition) && !_wasPressed)
             {
-               
+
             }
         }
 
@@ -46,39 +53,10 @@ namespace dusk.mejjiq.ui.elements
         private void OnMouseReleased(Vector2 position)
         {
             var mousePosition = new Point((int)position.X, (int)position.Y);
-            if (_bounds.Contains(mousePosition))
+            if (new Rectangle(Position.ToPoint(), Size.ToPoint()).Contains(mousePosition))
             {
                 // Trigger the button click event
                 _onClick?.Invoke();  // Invoke the Action
-            }
-        }
-
-        public void Update(MouseState mouseState)
-        {
-            var mousePosition = new Point(mouseState.X, mouseState.Y);
-            _isHovering = _bounds.Contains(mousePosition);
-        }
-
-        public void Draw(SpriteBatch spriteBatch, Color buttonColor, Color hoverColor, Color textColor)
-        {
-            var color = _isHovering ? hoverColor : buttonColor;
-
-            // Draw the rectangle for the button
-            spriteBatch.Draw(
-                CreateDummyTexture(spriteBatch.GraphicsDevice),
-                _bounds,
-                color
-            );
-
-            // Draw the button text, if any
-            if (!string.IsNullOrEmpty(_text) && _font != null)
-            {
-                var textSize = _font.MeasureString(_text);
-                var textPosition = new Vector2(
-                    _bounds.X + (_bounds.Width - textSize.X) / 2,
-                    _bounds.Y + (_bounds.Height - textSize.Y) / 2
-                );
-                spriteBatch.DrawString(_font, _text, textPosition, textColor);
             }
         }
 
@@ -87,6 +65,36 @@ namespace dusk.mejjiq.ui.elements
             var dummyTexture = new Texture2D(graphicsDevice, 1, 1);
             dummyTexture.SetData(new[] { Color.White });
             return dummyTexture;
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            var mouseState = Mouse.GetState();
+            var mousePosition = new Point(mouseState.X, mouseState.Y);
+            _isHovering = new Rectangle(Position.ToPoint(), Size.ToPoint()).Contains(mousePosition);
+        }
+
+        public void Draw(SpriteBatch spriteBatch, BasicEffect basicEffect)
+        {
+            var color = _isHovering ? _hoverColor : _buttonColor;
+
+            // Draw the rectangle for the button
+            spriteBatch.Draw(
+                CreateDummyTexture(spriteBatch.GraphicsDevice),
+                new Rectangle(Position.ToPoint(), Size.ToPoint()),
+                color
+            );
+
+            // Draw the button text, if any
+            if (!string.IsNullOrEmpty(_text) && _font != null)
+            {
+                var textSize = _font.MeasureString(_text);
+                var textPosition = new Vector2(
+                    Position.X + (Size.X - textSize.X) / 2,
+                    Position.Y + (Size.Y - textSize.Y) / 2
+                );
+                spriteBatch.DrawString(_font, _text, textPosition, _textColor);
+            }
         }
     }
 }
