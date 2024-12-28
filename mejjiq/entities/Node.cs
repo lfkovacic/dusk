@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
-using dusk.mejjiq.entities.@interface;
+using dusk.mejjiq.entities.interfaces;
 using dusk.mejjiq.interfaces;
 using System.Text.Json.Nodes;
 using dusk.mejjiq.util;
@@ -51,6 +51,8 @@ public class Node : INode, ISaveable
             Dz = value.Z;
         }
     }
+
+    public int Id => throw new NotImplementedException();
 
     private readonly float _vectorUpdateThreshold = ConfigManager.GetFloatValue("Physics", "VectorUpdateThreshold");
 
@@ -205,4 +207,13 @@ public class Node : INode, ISaveable
         Position += vector;
     }
 
+    string INode.Serialize()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void ApplyTension(INode activeNode)
+    {
+        throw new NotImplementedException();
+    }
 }

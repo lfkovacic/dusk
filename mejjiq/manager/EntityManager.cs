@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using dusk.mejjiq.entities;
+using dusk.mejjiq.entities.interfaces;
 using dusk.mejjiq.util;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace dusk.mejjiq.manager
 {
@@ -17,7 +17,7 @@ namespace dusk.mejjiq.manager
         private List<GameEntity> _entities;
         private GameEntity _activeEntity;
 
-        private Node _activeNode;
+        private INode _activeNode;
         private bool _isAddingNewNode;
         private bool _isConnectingNodes;
 
@@ -152,7 +152,7 @@ namespace dusk.mejjiq.manager
             _activeEntity = null;
         }
 
-        public Node GetActiveNode()
+        public INode GetActiveNode()
         {
             return _activeNode;
         }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using dusk.mejjiq.entities;
+using dusk.mejjiq.entities.interfaces;
 using Microsoft.Xna.Framework;
 
 namespace dusk.mejjiq.math;
@@ -38,16 +39,16 @@ public static class MathUtils
         return tensionVector;
     }
 
-    public static Vector3 GetTensionVector(Edge edge)
+    public static Vector3 GetTensionVector(IEdge edge)
     {
 
-        var node0 = edge.GetNodes()[0];
-        var node1 = edge.GetNodes()[1];
+        var node0 = edge.Node0;
+        var node1 = edge.Node1;
 
         var position0 = node0.Position;
         var position1 = node1.Position;
 
-        return CalculateTension(position0,position1, edge.MinLength, edge.TensionCoefficient);
+        return CalculateTension(position0,position1, edge.Length, edge.TensionCoefficient);
     }
 
     public static Vector3 GetTensionVector(Vector3 position0, Vector3 position1, float minDistance, float tensionCoefficient){

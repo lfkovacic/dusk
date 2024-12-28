@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text.Json.Nodes;
-using dusk.mejjiq.entities.@interface;
+using dusk.mejjiq.entities.interfaces;
 using dusk.mejjiq.manager;
 using dusk.mejjiq.math;
 using Microsoft.Xna.Framework;
@@ -13,19 +13,24 @@ namespace dusk.mejjiq.entities;
 public class Edge : IEdge
 {
     public INode[] Nodes { get; set; } = new INode[2];
-    public float MinLength { get; set; } = 200f; // Minimum length where tension starts to approach zero
-    public float TensionCoefficient = 30f; //The higher this valiue, the less springy
+
+    public INode Node0 => Nodes[0];
+
+    public INode Node1 => Nodes[1];
+
+    public float Length {get; set;} //Equilibrium length for things like tension
+    public float TensionCoefficient {get; set;} = 200f;
     public Edge(INode node0, INode node1)
     {
         Nodes[0] = node0;
         Nodes[1] = node1;
     }
 
-    public Edge(INode node0, INode node1, float minLength)
+    public Edge(INode node0, INode node1, float length)
     {
         Nodes[0] = node0;
         Nodes[1] = node1;
-        MinLength = minLength;
+        Length = length;
     }
 
     public static IEdge GetEdgeFromNodes(INode node0, INode node1)
@@ -48,10 +53,6 @@ public class Edge : IEdge
         node0.ApplyFriction(frictionCoefficient);
         node1.ApplyFriction(frictionCoefficient);
     }
-
-
-
-
     public void Draw(GraphicsDevice graphicsDevice, BasicEffect effect)
     {
         var green = new Color(0x00ff00);
@@ -70,7 +71,7 @@ public class Edge : IEdge
             graphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, vertices, 0, 1);
             if (ConfigManager.GetValue("Misc", "DebugMode") == "true")
             {
-                foreach (Node node in Nodes)
+                foreach (INode node in Nodes)
                 {
                     node.Draw(graphicsDevice, effect);
                 }
@@ -132,5 +133,15 @@ public class Edge : IEdge
     public INode[] GetNodes()
     {
         return Nodes;
+    }
+
+    public void Update()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    string IEdge.Serialize()
+    {
+        throw new System.NotImplementedException();
     }
 }
