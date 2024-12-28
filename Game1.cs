@@ -64,73 +64,24 @@ public class Game1 : Game
         );
 
         // Add to the list of entities
-        _entityManager = new EntityManager();
+        _entityManager = new EntityManager(_eventManager);
         _entityManager.AddEntity(gameEntity);
     }
 
     private void OnMousePressed(Vector2 position)
     {
-
-        Node mousedNode = _entityManager.GetNodeWithMouseInsideFromAllEntities(position);
-        Node activeNode = _entityManager.GetActiveNode();
-        if (activeNode != null && activeNode.IsMouseInside(position)) _entityManager.SetActiveNode(mousedNode);
-        if (mousedNode != null && _entityManager.ActiveEntity != null)
-        {
-
-
-            _entityManager.ConnectToActiveNode(mousedNode);
-            _entityManager.CancelAction();
-
-        }
-        if (_entityManager.IsAddingNewNode)
-        {
-            if (mousedNode != null)
-            {
-                _entityManager.SetActiveNode(mousedNode);
-                _entityManager.StartAddingNewNode();
-            }
-            else
-            if (_entityManager.ActiveEntity == null)
-            {
-                var entity = new GameEntity([], []);
-                _entityManager.SetActiveEntity(entity);
-                _entityManager.AddNodeToActiveEntity(new Vector3(position, 0));
-                _entityManager.AddEntity(entity);
-                _entityManager.StartConnectingNodes();
-            }
-            else
-            {
-                _entityManager.StartConnectingNodes();
-            }
-        }
-        if (_entityManager.IsConnectingNodes && !_entityManager.GetActiveNode().IsMouseInside(position))
-        {
-
-            _entityManager.AddNodeToActiveEntity(new Vector3(position, 0));
-            _entityManager.StartAddingNewNode();
-        }
-
-        if (!_entityManager.IsConnectingNodes)
-
-            foreach (var entity in _entityManager.GetAllEntities())
-            {
-                entity.OnMouseDown(position, ref _activeNode);
-            }
+        
 
     }
 
     private void OnMouseMoved(Vector2 position)
     {
-        if (_activeNode == null) return;
-        _activeNode.OnMouseMove(position);
+        
     }
 
     private void OnMouseReleased(Vector2 position)
     {
-        foreach (var entity in _entityManager.GetAllEntities())
-        {
-            entity.OnMouseUp(ref _activeNode);
-        }
+        
     }
 
     private void OnKeyPressed(Keys k)
@@ -172,7 +123,7 @@ public class Game1 : Game
         _button2 = new Button(
             new Rectangle(20, 100, 200, 60),
             _eventManager,
-            new Action(() => _entityManager.StartAddingNewNode()),
+            new Action(() => { _entityManager.StartAddingNewNode(); _entityManager.SetActiveEntity(null); }),
             "Add new node",
             _defaultFont
         );
@@ -201,10 +152,7 @@ public class Game1 : Game
         };
 
         LoadGrid();
-
-
-
-        // Load the triangle state
+        // Load the entity
         LoadGameEntities();
     }
 
@@ -217,10 +165,7 @@ public class Game1 : Game
         _button1.Update(Mouse.GetState());
         _button2.Update(Mouse.GetState());
 
-        foreach (GameEntity entity in _entityManager.GetAllEntities())
-        {
-            entity.Update(_activeNode, gameTime);
-        }
+        _entityManager.Update(gameTime);
 
     }
 

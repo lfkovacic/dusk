@@ -20,11 +20,101 @@ namespace dusk.mejjiq.manager
         private bool _isAddingNewNode;
         private bool _isConnectingNodes;
 
-        public EntityManager()
+        private EventManager _eventManager;
+
+        public EntityManager(EventManager eventManager)
         {
+
+            //Instantiate new list of GameEntities
             _entities = new List<GameEntity>();
             _isAddingNewNode = false;
             _isConnectingNodes = false;
+
+            _eventManager = eventManager;
+
+            //Subscribe to mouse events in the EventManager
+            _eventManager.MousePressed += OnMousePressed;
+            _eventManager.MouseReleased += OnMouseReleased;
+            _eventManager.MouseMoved += OnMouseMoved;
+
+        }
+
+        public void OnMousePressed(Vector2 position)
+        {
+            if (!IsConnectingNodes && !IsAddingNewNode)
+                foreach (var entity in _entities)
+                {
+                    entity.OnMouseDown(position, ref _activeNode);
+                }
+
+
+            Node mousedNode = GetNodeWithMouseInsideFromAllEntities(position);
+            if (IsConnectingNodes)
+            {
+                if (mousedNode != null && _activeNode != null)
+                {
+                    _activeEntity.AddEdge(_activeNode, mousedNode);
+                    _activeNode = null;
+                    CancelAction();
+                }
+                if (mousedNode == null && _activeNode != null && _activeEntity != null)
+                {
+                    Node newNode = new Node(_activeEntity.Nodes.Count, new Vector3(position, 0));
+                    _activeEntity.AddNode(newNode);
+                    _activeEntity.AddEdge(_activeNode, newNode);
+                    _activeNode = newNode;
+                }
+                if (mousedNode == null && _activeNode != null)
+                {
+                    // Node newNode = new Node(_activeEntity.Nodes.Count, new Vector3(position, 0));
+                    // _activeEntity.AddNode(newNode);
+                    // _activeEntity.AddEdge(_activeNode, newNode);
+                    // _activeNode = newNode;
+                }
+            }
+            if (IsAddingNewNode)
+            {
+                if (mousedNode != null)
+                {
+                    _activeNode = mousedNode;
+                    StartConnectingNodes();
+                }
+                if (mousedNode == null && _activeNode == null && _activeEntity == null)
+                {
+                    GameEntity newEntity = new GameEntity([], []);
+                    Node newNode = new Node(newEntity.Nodes.Count, new Vector3(position, 0));
+                    newEntity.AddNode(newNode);
+                    _activeNode = newNode;
+                    _activeEntity = newEntity;
+                    _entities.Add(newEntity);
+                    StartConnectingNodes();
+                }
+            }
+
+        }
+
+        public void OnMouseReleased(Vector2 position)
+        {
+
+            if (!(IsAddingNewNode || IsConnectingNodes))
+            {
+                foreach (var entity in _entities)
+                {
+                    entity.OnMouseUp(ref _activeNode);
+                }
+                _activeNode = null;
+                _activeEntity = null;
+
+            }
+        }
+
+        public void OnMouseMoved(Vector2 position)
+        {
+            if (!(IsAddingNewNode || IsConnectingNodes))
+            {
+                if (_activeNode == null) return;
+                _activeNode.OnMouseMove(position);
+            }
         }
 
         public List<GameEntity> GetAllEntities()
@@ -35,7 +125,6 @@ namespace dusk.mejjiq.manager
         // Properties for modes and active entity
         public bool IsAddingNewNode => _isAddingNewNode;
         public bool IsConnectingNodes => _isConnectingNodes;
-        public GameEntity ActiveEntity => _activeEntity;
 
         // Set the active entity
         public void SetActiveEntity(GameEntity entity)
@@ -90,12 +179,14 @@ namespace dusk.mejjiq.manager
         {
             foreach (GameEntity entity in _entities)
             {
-                foreach (Node n in entity.Nodes)
+                foreach (Node n in entity.Nodes.Cast<Node>())
                 {
                     bool isInside = n.IsMouseInside(mousePosition);
                     if (isInside)
                     {
-                        if (_activeEntity != entity && _activeEntity != null) MergeEntities(entity);
+                        // if (_activeEntity != entity && _activeEntity != null) MergeEntities(entity);
+                        if (_activeEntity == null) _activeEntity = entity;
+                        else if (_activeEntity != entity) MergeEntities(entity);
                         return n;
                     }
                 }
@@ -104,23 +195,6 @@ namespace dusk.mejjiq.manager
         }
 
         // Add a new node to the active entity
-        public void AddNodeToActiveEntity(Vector3 position)
-        {
-            if (_activeEntity != null && _isAddingNewNode)
-            {
-                var newNode = new Node(_activeEntity.Nodes.Count, position);
-                _activeEntity.AddNode(newNode);
-                _activeNode = newNode;
-            }
-            if (_activeEntity != null && _isConnectingNodes)
-            {
-                var newNode = new Node(_activeEntity.Nodes.Count, position);
-                _activeEntity.AddNode(newNode);
-                _activeEntity.AddEdge(
-                    new Edge(_activeNode, newNode, Vector3.Distance(_activeNode.Position, newNode.Position)));
-                _activeNode = newNode;
-            }
-        }
 
         // Connect two nodes in the active entity
         public void ConnectNodesInActiveEntity(Node node1, Node node2)
@@ -146,7 +220,7 @@ namespace dusk.mejjiq.manager
         {
             foreach (var entity in _entities)
             {
-                entity.Update(_activeNode, gameTime);
+                entity.Update(gameTime);
             }
         }
 
@@ -169,6 +243,7 @@ namespace dusk.mejjiq.manager
 
         public void MergeEntities(GameEntity entity)
         {
+            //TODO: update node IDs
             GameEntity entityUnion = new GameEntity(
                 _activeEntity.Nodes.Union(entity.Nodes).ToList(),
                 _activeEntity.Edges.Union(entity.Edges).ToList()
@@ -178,6 +253,12 @@ namespace dusk.mejjiq.manager
 
             _activeEntity = entityUnion;
             _entities.Add(_activeEntity);
+        }
+
+        private void SelectNodeAndActivateEntity(Node node, GameEntity entity)
+        {
+            _activeNode = node;
+            _activeEntity = entity;
         }
     }
 }

@@ -8,6 +8,6 @@ namespace dusk.mejjiq.entities.@interface;
 public interface IGameEntity{
     JsonNode Serialize();
 
-    void Update(Node activeNode, GameTime gameTime);
+    void Update(GameTime gameTime);
     void Draw(GraphicsDevice graphicsDevice, BasicEffect effect);
 }

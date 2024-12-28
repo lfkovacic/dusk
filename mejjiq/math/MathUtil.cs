@@ -38,7 +38,7 @@ public static class MathUtils
         return tensionVector;
     }
 
-    public static Vector3 GetTensionVector(Edge edge, Node activeNode)
+    public static Vector3 GetTensionVector(Edge edge)
     {
 
         var node0 = edge.GetNodes()[0];

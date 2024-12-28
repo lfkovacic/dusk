@@ -15,7 +15,6 @@ namespace dusk.mejjiq.entities;
 public class Node : INode, ISaveable
 {
     public int ID { get; set; }
-
     //Position
     public float X { get; set; }
     public float Y { get; set; }

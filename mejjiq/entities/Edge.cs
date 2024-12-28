@@ -34,14 +34,14 @@ public class Edge : IEdge
     }
 
     // Apply the tension with a logarithmic scaling
-    public void ApplyTension(Node activeNode)
+    public void ApplyTension()
     {
         var node0 = (Node)Nodes[0];
         var node1 = (Node)Nodes[1];
 
         var frictionCoefficient = 0.992f;
 
-        var tensionVector = MathUtils.GetTensionVector(this, activeNode);
+        var tensionVector = MathUtils.GetTensionVector(this);
         node0.UpdateWithVector(tensionVector);
         node1.UpdateWithVector(-tensionVector);
 

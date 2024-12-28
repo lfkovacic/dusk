@@ -38,9 +38,7 @@ namespace dusk.mejjiq.ui.elements
             var mousePosition = new Point((int)position.X, (int)position.Y);
             if (_bounds.Contains(mousePosition) && !_wasPressed)
             {
-                // Trigger the button click event
-                _onClick?.Invoke();  // Invoke the Action
-                _wasPressed = true;
+               
             }
         }
 
@@ -50,7 +48,8 @@ namespace dusk.mejjiq.ui.elements
             var mousePosition = new Point((int)position.X, (int)position.Y);
             if (_bounds.Contains(mousePosition))
             {
-                _wasPressed = false;
+                // Trigger the button click event
+                _onClick?.Invoke();  // Invoke the Action
             }
         }
 

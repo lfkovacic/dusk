@@ -27,11 +27,11 @@ public class GameEntity(List<INode> nodes, List<IEdge> edges) : IGameEntity
         throw new System.NotImplementedException();
     }
 
-    public void Update(Node activeNode, GameTime gametime)
+    public void Update(GameTime gametime)
     {
         foreach (Edge e in Edges)
         {
-            e.ApplyTension(activeNode);
+            e.ApplyTension();
         }
     }
 
@@ -70,7 +70,8 @@ public class GameEntity(List<INode> nodes, List<IEdge> edges) : IGameEntity
 
     public void AddEdge(Node node0, Node node1)
     {
-        Edges.Add(new Edge(node0, node1));
+
+        Edges.Add(new Edge(node0, node1, Vector3.Distance(node0.Position, node1.Position)));
     }
 
 }
